@@ -1,0 +1,73 @@
+{{- if eq .Values.zipkin.storage.type "cassandra3" }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "zipkin.fullname" . }}-collector
+  labels:
+    {{- include "zipkin.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "zipkin.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "zipkin.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "zipkin.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-collector
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: STORAGE_TYPE
+              value: "{{ .Values.zipkin.storage.type }}"
+            - name: QUERY_PORT
+              value: '9411'
+            - name: QUERY_ENABLED
+              value: "false"
+            - name: JAVA_OPTS
+              value: {{ .Values.zipkin.storage.java_opts | quote}}
+            {{- if eq .Values.zipkin.storage.type "cassandra3" }}
+            - name: CASSANDRA_ENSURE_SCHEMA
+              value: {{ .Values.zipkin.storage.cassandra3.ensure_schema | quote}}
+            - name: CASSANDRA_CONTACT_POINTS
+              value: {{ .Values.zipkin.storage.cassandra3.contact_point | quote}}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 9411
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
