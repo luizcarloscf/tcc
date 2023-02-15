@@ -77,6 +77,98 @@ sudo netplan try
 sudo netplan apply
 ```
 
+## Using Raspicam
+
+<p align="center">
+  <img src="images/raspicam.png" alt=“raspicam” width="500" height="400" />
+</p>
+
+First, connect your camera to the raspberry. Make sure the cable isn't broken. If you are using Ubuntu Server 22.04.5 LTS, make sure `/boot/config.txt` and `/boot/firmware/config.txt` are with the right configuration. As always, you must reboot your device for the changes to take effect. I think Ubuntu dropped support for `raspi-config` and changes in `/boot/config.txt` made in it doesn't really matter. It seems to me that you should take the changes you want from `/boot/config.txt` and put in `/boot/firware/config.txt`. At `/boot/firwmare/README` you can find that `/boot/firware/config.txt` is the configuration file read by the boot process.
+
+`/boot/config.txt`
+```txt
+[pi4]
+dtoverlay=vc4-fkms-v3d
+gpu_mem=128
+dtparam=i2c_arm=on
+start_x=1
+```
+
+`/boot/firmware/config.txt` 
+```txt
+[pi4]
+kernel=uboot_rpi_4.bin
+
+[pi2]
+kernel=uboot_rpi_2.bin
+
+[pi3]
+kernel=uboot_rpi_3.bin
+
+[pi0]
+kernel=uboot_rpi_3.bin
+
+[all]
+device_tree_address=0x03000000
+
+[pi4]
+max_framebuffers=2
+arm_boost=1
+
+[all]
+# Enable the audio output, I2C and SPI interfaces on the GPIO header. As these
+# parameters related to the base device-tree they must appear *before* any
+# other dtoverlay= specification
+dtparam=audio=on
+dtparam=i2c_arm=on
+dtparam=spi=on
+
+# Comment out the following line if the edges of the desktop appear outside
+# the edges of your display
+disable_overscan=1
+
+# If you have issues with audio, you may try uncommenting the following line
+# which forces the HDMI output into HDMI mode instead of DVI (which doesn't
+# support audio output)
+#hdmi_drive=2
+
+# Config settings specific to arm64
+arm_64bit=1
+dtoverlay=dwc2
+
+[cm4]
+# Enable the USB2 outputs on the IO board (assuming your CM4 is plugged into
+# such a board)
+dtoverlay=dwc2,dr_mode=host
+
+[all]
+
+# The following settings are "defaults" expected to be overridden by the
+# included configuration. The only reason they are included is, again, to
+# support old firmwares which don't understand the "include" command.
+
+enable_uart=1
+cmdline=cmdline.txt
+dtoverlay=vc4-fkms-v3d
+gpu_mem=128
+dtparam=i2c_arm=on
+start_x=1
+
+include syscfg.txt
+include usercfg.txt
+```
+
+After that, the following command should give you a output as follows:
+```bash
+sudo vcgencmd get_camera
+supported=1 detected=1
+```
+
+To capture an image,
+```bash
+raspistill -o image.jpg
+```
+
 ## Resources
 
 * [Raspeberry PI Wikipedia](https://en.wikipedia.org/wiki/Raspberry_Pi)
@@ -85,3 +177,4 @@ sudo netplan apply
 * [How to install raspi-config on ubuntu](https://dexterexplains.com/r/20211030-how-to-install-raspi-config-on-ubuntu)
 * [Install a local kubernetes with microk8s](https://ubuntu.com/tutorials/install-a-local-kubernetes-with-microk8s#1-overview)
 * [Installing microk8s on a Raspberry Pi](https://microk8s.io/docs/install-raspberry-pi)
+* [Raspberry Pi 64-bit with Camera Support](https://medium.com/@gibryonbhojraj/how-to-raspberry-pi-64-bit-with-camera-support-def95f206188)
