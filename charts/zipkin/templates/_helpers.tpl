@@ -61,3 +61,14 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Define the namespace template if set with forceNamespace or .Release.Namespace is set
+*/}}
+{{- define "zipkin.namespace" -}}
+{{- if .Values.forceNamespace -}}
+{{ printf "%s" .Values.forceNamespace }}
+{{- else -}}
+{{ printf "%s" .Release.Namespace }}
+{{- end -}}
+{{- end -}}
