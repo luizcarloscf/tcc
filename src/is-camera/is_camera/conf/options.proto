@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+// Models the configurations needed to connect to Zipkin.
+message Zipkin {
+    // Protocol used by zipkin.
+    string protocol = 1;
+    // Zipkin address.
+    string host = 2;
+    // Zipkin port.
+    uint32 port = 3;
+}
+
+// Models configurations needed to connect to RabbitMQ.
+message RabbitMQ {
+    // Protocol used by rabbitMQ (e.g.: AMQP).
+    string protocol = 1;
+    // RabbitMQ user.
+    string user = 2;
+    // RabbitMQ password.
+    string password = 3;
+    // RabbitMQ host.
+    string host = 4;
+    // RabbitMQ port.
+    uint32 port = 5;
+}
+
+// Models the camera options and its characteristics.
+message Camera {
+    // Camera identifier.
+    uint32 id = 1;
+    // Target device (E.g.: /dev/video0).
+    string device = 3;
+    // Images capture per second.
+    float framerate = 4;
+    // Number of vertical pixels.
+    uint32 height = 5;
+    // Number of horizontal pixels.
+    uint32 width = 6;
+}
+
+// Models the service behavior.
+message CameraGatewayOptions {
+    // RabbitMQ configurations.
+    RabbitMQ rabbitmq = 1;
+    // Zipkin configurations.
+    Zipkin zipkin = 2;
+    // Camera configurations.
+    Camera camera = 3;
+}
