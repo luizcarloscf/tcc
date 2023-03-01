@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: is-camera
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: is-camera
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: is-camera
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+      containers:
+      - name: is-camera
+        image: luizcarloscf/is-camera:0.1.0
+        command: ["is-camera-gateway", "/etc/is-camera/options.json"]
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "1500m"
+            memory: "1024Mi"
+            smarter-devices/video0: 1
+          requests:
+            cpu: "1000m"
+            memory: "512Mi"
+            smarter-devices/video0: 1
+        volumeMounts:
+          - name: options
+            mountPath: /etc/is-camera/
+      volumes:
+      - name: options
+        configMap:
+          name: is-camera
+          items:
+          - key: options
+            path: options.json

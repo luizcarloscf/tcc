@@ -1,0 +1,36 @@
+FROM python:3.10-slim-bullseye as build
+
+ENV READTHEDOCS=True
+
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        linux-libc-dev \
+        libc6-dev \
+        libffi-dev \
+        rustc \
+        build-essential \
+        libssl-dev \
+        cargo; \
+    pip3 install --upgrade poetry; \
+    poetry config virtualenvs.in-project true;
+
+WORKDIR /opt/
+COPY src/is-rasp-camera/ is-rasp-camera/
+
+WORKDIR /opt/is-rasp-camera/
+RUN set -eux; \
+    poetry install; \
+    poetry run pip install --upgrade protobuf==3.20.3
+
+RUN set -eux; \ 
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        libsm6 \
+        libxext6 \
+        libglib2.0-0 \
+        libxrender-dev \
+        libgl1-mesa-glx \
+        libturbojpeg0; 
+
