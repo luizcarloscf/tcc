@@ -1,16 +1,6 @@
 {
-    "rabbitmq" : {
-		"protocol": "amqp",
-	    "user": "guest",
-	    "password": "guest",
-	    "host" : "10.20.4.254",
-	    "port" : 30000
-	},
-	"zipkin" : {
-		"protocol": "http",
-	    "host" : "localhost",
-	    "port" : 9411
-	},
+    "rabbitmq_uri" : "amqp://guest:guest@10.20.4.254:30000",
+	"zipkin_uri" : "http://zipkin.default:9411",
     "config": {
         "dictionary": "DICT_4X4_50",
         "lengths": {

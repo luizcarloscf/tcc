@@ -20,12 +20,12 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n$is_aruco_detector/conf/options.proto\"6\n\x06Zipkin\x12\x10\n\x08protocol\x18\x01 \x01(\t\x12\x0c\n\x04host\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\r\"X\n\x08RabbitMQ\x12\x10\n\x08protocol\x18\x01 \x01(\t\x12\x0c\n\x04user\x18\x02 \x01(\t\x12\x10\n\x08password\x18\x03 \x01(\t\x12\x0c\n\x04host\x18\x04 \x01(\t\x12\x0c\n\x04port\x18\x05 \x01(\r\"\x93\x01\n\rArucoSettings\x12$\n\ndictionary\x18\x01 \x01(\x0e\x32\x10.ArucoDictionary\x12,\n\x07lengths\x18\x02 \x03(\x0b\x32\x1b.ArucoSettings.LengthsEntry\x1a.\n\x0cLengthsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x02:\x02\x38\x01\"k\n\x13\x41rUcoServiceOptions\x12\x1b\n\x08rabbitmq\x18\x01 \x01(\x0b\x32\t.RabbitMQ\x12\x17\n\x06zipkin\x18\x02 \x01(\x0b\x32\x07.Zipkin\x12\x1e\n\x06\x63onfig\x18\x03 \x01(\x0b\x32\x0e.ArucoSettings*\xe9\x01\n\x0f\x41rucoDictionary\x12\x0f\n\x0b\x44ICT_4X4_50\x10\x00\x12\x10\n\x0c\x44ICT_4X4_100\x10\x01\x12\x10\n\x0c\x44ICT_4X4_250\x10\x02\x12\x11\n\rDICT_4X4_1000\x10\x03\x12\x0f\n\x0b\x44ICT_5X5_50\x10\x04\x12\x10\n\x0c\x44ICT_5X5_100\x10\x05\x12\x10\n\x0c\x44ICT_5X5_250\x10\x06\x12\x11\n\rDICT_5X5_1000\x10\x07\x12\x0f\n\x0b\x44ICT_6X6_50\x10\x08\x12\x10\n\x0c\x44ICT_6X6_100\x10\t\x12\x10\n\x0c\x44ICT_6X6_250\x10\n\x12\x11\n\rDICT_6X6_1000\x10\x0b\x62\x06proto3'
+  serialized_pb=b'\n$is_aruco_detector/conf/options.proto\"\x93\x01\n\rArUcoSettings\x12$\n\ndictionary\x18\x01 \x01(\x0e\x32\x10.ArUcoDictionary\x12,\n\x07lengths\x18\x02 \x03(\x0b\x32\x1b.ArUcoSettings.LengthsEntry\x1a.\n\x0cLengthsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x02:\x02\x38\x01\"`\n\x14\x41rUcoDetectorOptions\x12\x14\n\x0crabbitmq_uri\x18\x01 \x01(\t\x12\x12\n\nzipkin_uri\x18\x02 \x01(\t\x12\x1e\n\x06\x63onfig\x18\x03 \x01(\x0b\x32\x0e.ArUcoSettings*\xe9\x01\n\x0f\x41rUcoDictionary\x12\x0f\n\x0b\x44ICT_4X4_50\x10\x00\x12\x10\n\x0c\x44ICT_4X4_100\x10\x01\x12\x10\n\x0c\x44ICT_4X4_250\x10\x02\x12\x11\n\rDICT_4X4_1000\x10\x03\x12\x0f\n\x0b\x44ICT_5X5_50\x10\x04\x12\x10\n\x0c\x44ICT_5X5_100\x10\x05\x12\x10\n\x0c\x44ICT_5X5_250\x10\x06\x12\x11\n\rDICT_5X5_1000\x10\x07\x12\x0f\n\x0b\x44ICT_6X6_50\x10\x08\x12\x10\n\x0c\x44ICT_6X6_100\x10\t\x12\x10\n\x0c\x44ICT_6X6_250\x10\n\x12\x11\n\rDICT_6X6_1000\x10\x0b\x62\x06proto3'
 )
 
 _ARUCODICTIONARY = _descriptor.EnumDescriptor(
-  name='ArucoDictionary',
-  full_name='ArucoDictionary',
+  name='ArUcoDictionary',
+  full_name='ArUcoDictionary',
   filename=None,
   file=DESCRIPTOR,
   create_key=_descriptor._internal_create_key,
@@ -93,12 +93,12 @@ _ARUCODICTIONARY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=446,
-  serialized_end=679,
+  serialized_start=289,
+  serialized_end=522,
 )
 _sym_db.RegisterEnumDescriptor(_ARUCODICTIONARY)
 
-ArucoDictionary = enum_type_wrapper.EnumTypeWrapper(_ARUCODICTIONARY)
+ArUcoDictionary = enum_type_wrapper.EnumTypeWrapper(_ARUCODICTIONARY)
 DICT_4X4_50 = 0
 DICT_4X4_100 = 1
 DICT_4X4_250 = 2
@@ -114,129 +114,23 @@ DICT_6X6_1000 = 11
 
 
 
-_ZIPKIN = _descriptor.Descriptor(
-  name='Zipkin',
-  full_name='Zipkin',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='protocol', full_name='Zipkin.protocol', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='host', full_name='Zipkin.host', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='port', full_name='Zipkin.port', index=2,
-      number=3, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=40,
-  serialized_end=94,
-)
-
-
-_RABBITMQ = _descriptor.Descriptor(
-  name='RabbitMQ',
-  full_name='RabbitMQ',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='protocol', full_name='RabbitMQ.protocol', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='user', full_name='RabbitMQ.user', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='password', full_name='RabbitMQ.password', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='host', full_name='RabbitMQ.host', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='port', full_name='RabbitMQ.port', index=4,
-      number=5, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=96,
-  serialized_end=184,
-)
-
-
 _ARUCOSETTINGS_LENGTHSENTRY = _descriptor.Descriptor(
   name='LengthsEntry',
-  full_name='ArucoSettings.LengthsEntry',
+  full_name='ArUcoSettings.LengthsEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='ArucoSettings.LengthsEntry.key', index=0,
+      name='key', full_name='ArUcoSettings.LengthsEntry.key', index=0,
       number=1, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='value', full_name='ArucoSettings.LengthsEntry.value', index=1,
+      name='value', full_name='ArUcoSettings.LengthsEntry.value', index=1,
       number=2, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
@@ -254,27 +148,27 @@ _ARUCOSETTINGS_LENGTHSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=288,
-  serialized_end=334,
+  serialized_start=142,
+  serialized_end=188,
 )
 
 _ARUCOSETTINGS = _descriptor.Descriptor(
-  name='ArucoSettings',
-  full_name='ArucoSettings',
+  name='ArUcoSettings',
+  full_name='ArUcoSettings',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='dictionary', full_name='ArucoSettings.dictionary', index=0,
+      name='dictionary', full_name='ArUcoSettings.dictionary', index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='lengths', full_name='ArucoSettings.lengths', index=1,
+      name='lengths', full_name='ArUcoSettings.lengths', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -292,35 +186,35 @@ _ARUCOSETTINGS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=187,
-  serialized_end=334,
+  serialized_start=41,
+  serialized_end=188,
 )
 
 
-_ARUCOSERVICEOPTIONS = _descriptor.Descriptor(
-  name='ArUcoServiceOptions',
-  full_name='ArUcoServiceOptions',
+_ARUCODETECTOROPTIONS = _descriptor.Descriptor(
+  name='ArUcoDetectorOptions',
+  full_name='ArUcoDetectorOptions',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='rabbitmq', full_name='ArUcoServiceOptions.rabbitmq', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='rabbitmq_uri', full_name='ArUcoDetectorOptions.rabbitmq_uri', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='zipkin', full_name='ArUcoServiceOptions.zipkin', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='zipkin_uri', full_name='ArUcoDetectorOptions.zipkin_uri', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='config', full_name='ArUcoServiceOptions.config', index=2,
+      name='config', full_name='ArUcoDetectorOptions.config', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -338,58 +232,40 @@ _ARUCOSERVICEOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=336,
-  serialized_end=443,
+  serialized_start=190,
+  serialized_end=286,
 )
 
 _ARUCOSETTINGS_LENGTHSENTRY.containing_type = _ARUCOSETTINGS
 _ARUCOSETTINGS.fields_by_name['dictionary'].enum_type = _ARUCODICTIONARY
 _ARUCOSETTINGS.fields_by_name['lengths'].message_type = _ARUCOSETTINGS_LENGTHSENTRY
-_ARUCOSERVICEOPTIONS.fields_by_name['rabbitmq'].message_type = _RABBITMQ
-_ARUCOSERVICEOPTIONS.fields_by_name['zipkin'].message_type = _ZIPKIN
-_ARUCOSERVICEOPTIONS.fields_by_name['config'].message_type = _ARUCOSETTINGS
-DESCRIPTOR.message_types_by_name['Zipkin'] = _ZIPKIN
-DESCRIPTOR.message_types_by_name['RabbitMQ'] = _RABBITMQ
-DESCRIPTOR.message_types_by_name['ArucoSettings'] = _ARUCOSETTINGS
-DESCRIPTOR.message_types_by_name['ArUcoServiceOptions'] = _ARUCOSERVICEOPTIONS
-DESCRIPTOR.enum_types_by_name['ArucoDictionary'] = _ARUCODICTIONARY
+_ARUCODETECTOROPTIONS.fields_by_name['config'].message_type = _ARUCOSETTINGS
+DESCRIPTOR.message_types_by_name['ArUcoSettings'] = _ARUCOSETTINGS
+DESCRIPTOR.message_types_by_name['ArUcoDetectorOptions'] = _ARUCODETECTOROPTIONS
+DESCRIPTOR.enum_types_by_name['ArUcoDictionary'] = _ARUCODICTIONARY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-Zipkin = _reflection.GeneratedProtocolMessageType('Zipkin', (_message.Message,), {
-  'DESCRIPTOR' : _ZIPKIN,
-  '__module__' : 'is_aruco_detector.conf.options_pb2'
-  # @@protoc_insertion_point(class_scope:Zipkin)
-  })
-_sym_db.RegisterMessage(Zipkin)
-
-RabbitMQ = _reflection.GeneratedProtocolMessageType('RabbitMQ', (_message.Message,), {
-  'DESCRIPTOR' : _RABBITMQ,
-  '__module__' : 'is_aruco_detector.conf.options_pb2'
-  # @@protoc_insertion_point(class_scope:RabbitMQ)
-  })
-_sym_db.RegisterMessage(RabbitMQ)
-
-ArucoSettings = _reflection.GeneratedProtocolMessageType('ArucoSettings', (_message.Message,), {
+ArUcoSettings = _reflection.GeneratedProtocolMessageType('ArUcoSettings', (_message.Message,), {
 
   'LengthsEntry' : _reflection.GeneratedProtocolMessageType('LengthsEntry', (_message.Message,), {
     'DESCRIPTOR' : _ARUCOSETTINGS_LENGTHSENTRY,
     '__module__' : 'is_aruco_detector.conf.options_pb2'
-    # @@protoc_insertion_point(class_scope:ArucoSettings.LengthsEntry)
+    # @@protoc_insertion_point(class_scope:ArUcoSettings.LengthsEntry)
     })
   ,
   'DESCRIPTOR' : _ARUCOSETTINGS,
   '__module__' : 'is_aruco_detector.conf.options_pb2'
-  # @@protoc_insertion_point(class_scope:ArucoSettings)
+  # @@protoc_insertion_point(class_scope:ArUcoSettings)
   })
-_sym_db.RegisterMessage(ArucoSettings)
-_sym_db.RegisterMessage(ArucoSettings.LengthsEntry)
+_sym_db.RegisterMessage(ArUcoSettings)
+_sym_db.RegisterMessage(ArUcoSettings.LengthsEntry)
 
-ArUcoServiceOptions = _reflection.GeneratedProtocolMessageType('ArUcoServiceOptions', (_message.Message,), {
-  'DESCRIPTOR' : _ARUCOSERVICEOPTIONS,
+ArUcoDetectorOptions = _reflection.GeneratedProtocolMessageType('ArUcoDetectorOptions', (_message.Message,), {
+  'DESCRIPTOR' : _ARUCODETECTOROPTIONS,
   '__module__' : 'is_aruco_detector.conf.options_pb2'
-  # @@protoc_insertion_point(class_scope:ArUcoServiceOptions)
+  # @@protoc_insertion_point(class_scope:ArUcoDetectorOptions)
   })
-_sym_db.RegisterMessage(ArUcoServiceOptions)
+_sym_db.RegisterMessage(ArUcoDetectorOptions)
 
 
 _ARUCOSETTINGS_LENGTHSENTRY._options = None

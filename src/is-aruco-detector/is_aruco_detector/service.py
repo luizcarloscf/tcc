@@ -1,99 +1,61 @@
-import re
 import sys
 import time
+import logging
 
-from is_msgs.image_pb2 import Image
+from is_wire.core import Logger, Subscription
 from google.protobuf.json_format import Parse
-from is_wire.core import Subscription, Message, Logger
 
-from is_aruco_detector.aruco import ArUco
-from is_aruco_detector.channel import StreamChannel
+from is_aruco_detector.aruco import ArUcoDetector
+from is_aruco_detector.channel import CustomChannel
 from is_aruco_detector.calibration import CalibrationFetcher
-from is_aruco_detector.conf.options_pb2 import ArUcoServiceOptions, RabbitMQ, Zipkin
+from is_aruco_detector.conf.options_pb2 import ArUcoDetectorOptions
 
 
-class ArUcoService:
-    def __init__(self,
-                 name = "ArUcoDetector",
-                 options_path: str = "/etc/is-aruco-detector/options.json"):
-        self.logger = Logger("{}".format(name))
-        self.options = self.load_json(path=options_path)
-
-        rabbitmq_uri = self.rabbitmq_uri(rabbitmq=self.options.rabbitmq)
-        self.channel = StreamChannel(rabbitmq_uri)
-        
-        subscription = Subscription(channel=self.channel, name=name)
-        subscription.subscribe(topic='CameraGateway.*.Frame')           
-
-        self.fetcher = CalibrationFetcher(rabbitmq_uri)
-
-        self.aruco = ArUco(dictionary=0)
-
-    def load_json(self,
-                  path: str = "/etc/is_aruco_detector/options.json") -> ArUcoServiceOptions:
-        try:
-            with open(path, 'r') as f:
-                try:
-                    op = Parse(f.read(), ArUcoServiceOptions())
-                    self.logger.info('ArUcoServiceOptions: \n{}', op)
-                    return op
-                except Exception as ex:
-                    self.logger.critical('Unable to load options from \'{}\'. \n{}', path, ex)
-        except Exception:
-            self.logger.critical('Unable to open file \'{}\'', path)
-
-    @staticmethod
-    def rabbitmq_uri(rabbitmq: RabbitMQ) -> str:
-        return "{}://{}:{}@{}:{}".format(
-            rabbitmq.protocol,
-            rabbitmq.user,
-            rabbitmq.password,
-            rabbitmq.host,
-            rabbitmq.port,
-        )
-
-    @staticmethod
-    def zipkin_uri(zipkin: Zipkin):
-        return "{}://{}:{}".format(
-            zipkin.protocol,
-            zipkin.host,
-            zipkin.port,
-        )
-
-    @staticmethod
-    def topic_id(topic: str):
-        re_topic = re.compile(r'CameraGateway.(\d+).Frame')
-        result = re_topic.match(topic)
-        if result:
-            return result.group(1)
-
-    def eval_message(self, message: Message):
-        self.fetcher.eval()
-        ti = time.perf_counter()
-        camera_id = self.topic_id(topic=message.topic)
-        calibration = self.fetcher.find(camera_id=int(camera_id))
-        if calibration is not None:
-            image = message.unpack(Image)
-            annotations = self.aruco.detect(image=image)
-
-            detections = Message()
-            detections.pack(annotations)
-            detections.topic = 'ArUco.{}.Detection'.format(camera_id)
-            self.channel.publish(message=detections)
-
-            tf = time.perf_counter()
-            self.logger.info("Total, took_ms={}".format((tf-ti)*1000))
-
-    def run(self):
-        while True:
-            message = self.channel.consume_last()
-            self.eval_message(message=message)
+def load_json(logger: Logger,
+              path: str = "/etc/is_aruco_detector/options.json") -> ArUcoDetectorOptions:
+    try:
+        with open(path, 'r') as f:
+            try:
+                op = Parse(f.read(), ArUcoDetectorOptions())
+                logger.info('ArUcoDetectorOptions: \n{}', op)
+                return op
+            except Exception as ex:
+                logger.critical('Unable to load options from \'{}\'. \n{}', path, ex)
+    except Exception:
+        logger.critical('Unable to open file \'{}\'', path)
 
 
 def main():
-    options_path = sys.argv[1] if len(sys.argv) > 1 else 'options.json'
-    service = ArUcoService(options_path=options_path)
-    service.run()
+    service_name = "ArUcoDetector"
+    logger = Logger(name=service_name, level=logging.DEBUG)
+
+    options_filename = sys.argv[1] if len(sys.argv) > 1 else '/etc/is-aruco-detector/options.json'
+    options = load_json(logger=logger, path=options_filename)
+
+    channel = CustomChannel(uri=options.rabbitmq_uri)
+    subscription = Subscription(channel=channel, name=service_name)
+
+    detector = ArUcoDetector(settings=options.config, channel=channel, subscription=subscription)
+    fetcher = CalibrationFetcher(channel=channel, subscription=subscription)
+
+    calibs = {}
+
+    while True:
+        messages = channel.consume_all()
+        ti = time.perf_counter()
+        images_msgs = messages
+        for message in messages:
+            if message.has_correlation_id and message.correlation_id is not None:
+                calibs = fetcher.run(message=message)
+                images_msgs.remove(message)
+        if len(images_msgs) > 0:
+            ok = detector.run(message=images_msgs[-1], calibrations=calibs)
+            logger.info("Dropped messages, num={}".format(len(images_msgs) - 1))
+            if ok is not None:
+                fetcher.find(camera_id=ok)
+        fetcher.check()
+        tf = time.perf_counter()
+        logger.info("Total, took_ms={}".format((tf - ti) * 1000))
 
 
 if __name__ == "__main__":

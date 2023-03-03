@@ -1,30 +1,7 @@
 syntax = "proto3";
 
-// Models the configurations needed to connect to Zipkin.
-message Zipkin {
-    // Protocol used by zipkin.
-    string protocol = 1;
-    // Zipkin address.
-    string host = 2;
-    // Zipkin port.
-    uint32 port = 3;
-}
-
-// Models configurations needed to connect to RabbitMQ.
-message RabbitMQ {
-    // Protocol used by rabbitMQ (e.g.: AMQP).
-    string protocol = 1;
-    // RabbitMQ user.
-    string user = 2;
-    // RabbitMQ password.
-    string password = 3;
-    // RabbitMQ host.
-    string host = 4;
-    // RabbitMQ port.
-    uint32 port = 5;
-}
-
-enum ArucoDictionary {
+// Enumeration of ArUcoDictionaries
+enum ArUcoDictionary {
     DICT_4X4_50 = 0;
     DICT_4X4_100 = 1;
     DICT_4X4_250 = 2;
@@ -39,15 +16,20 @@ enum ArucoDictionary {
     DICT_6X6_1000 = 11;
 }
 
-message ArucoSettings {
+// Models the ArUco detection and localization behavior
+message ArUcoSettings {
     // aruco dictionary
-    ArucoDictionary dictionary = 1;
+    ArUcoDictionary dictionary = 1;
     // mapping between marker id and length
     map<int64, float> lengths = 2;
 }
   
-message ArUcoServiceOptions {
-    RabbitMQ rabbitmq = 1;
-    Zipkin zipkin = 2;
-    ArucoSettings config = 3;
+// Models the ArUco service
+message ArUcoDetectorOptions {
+    // RabbitMQ broker uri
+    string rabbitmq_uri = 1;
+    // Zipkin uri
+    string zipkin_uri = 2;
+    // ArUco configurations
+    ArUcoSettings config = 3;
 }
