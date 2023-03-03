@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: is-aruco-detector
+  namespace: default
+  labels:
+    app: is-aruco-detector
+data:
+  options: |-
+    {
+      "rabbitmq_uri" : "amqp://guest:guest@rabbitmq.default:5672",
+      "zipkin_uri" : "http://zipkin.default:9411",
+        "config": {
+            "dictionary": "DICT_4X4_50",
+            "lengths": {
+                "0": 0.300,
+                "1": 0.180
+            }
+        }
+    }
