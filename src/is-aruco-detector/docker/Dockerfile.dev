@@ -12,7 +12,13 @@ RUN set -eux; \
         rustc \
         build-essential \
         libssl-dev \
-        cargo; \
+        cargo \
+        libsm6 \
+        libxext6 \
+        libglib2.0-0 \
+        libxrender-dev \
+        libgl1-mesa-glx \
+        libturbojpeg0; \
     pip3 install --upgrade poetry; \
     poetry config virtualenvs.in-project true;
 
@@ -22,14 +28,4 @@ COPY src/is-aruco-detector/ is-aruco-detector/
 WORKDIR /opt/is-aruco-detector/
 RUN set -eux; \
     poetry install; \
-    poetry run pip install --upgrade protobuf==3.20.3
-
-RUN set -eux; \ 
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-        libsm6 \
-        libxext6 \
-        libglib2.0-0 \
-        libxrender-dev \
-        libgl1-mesa-glx \
-        libturbojpeg0; 
+    poetry run pip install --upgrade protobuf==3.20.3        
