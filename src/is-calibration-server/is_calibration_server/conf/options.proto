@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package is;
+
+message CalibrationServerOptions {
+  string broker_uri = 1;
+  string zipkin_uri = 2;
+  // path to directory containing files with the CameraCalibration object 
+  string calibrations_path = 3;
+}
