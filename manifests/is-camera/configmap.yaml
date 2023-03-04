@@ -22,7 +22,7 @@ data:
           "port" : 9411
       },
       "camera": {
-          "id": 9,
+          "id": 1,
           "device": "/dev/video0",
           "framerate": 10,
         "height" : 720,
