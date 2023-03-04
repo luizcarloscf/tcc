@@ -1,5 +1,5 @@
 {
-    "broker_uri": "amqp://guest:guest@localhost:5672",
-    "zipkin_uri": "http://localhost:9411",
-    "calibrations_path": "../is-aruco-calib/etc/calibrations/ufes"
+    "broker_uri": "amqp://guest:guest@rabbitmq.default:5672",
+    "zipkin_uri": "http://zipkin.default:9411",
+    "calibrations_path": "/opt/is-aruco-calib/etc/calibrations/ufes"
 }
