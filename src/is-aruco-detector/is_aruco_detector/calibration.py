@@ -13,7 +13,7 @@ class CalibrationFetcher:
         self.subscription = subscription
 
         self.fetch_interval = 5
-        self.timeout = time.perf_counter()
+        self.timeout = time.perf_counter() + self.fetch_interval
         self.camera_ids = []
         self.calibrations = {}
 
@@ -32,7 +32,7 @@ class CalibrationFetcher:
                     content=calib_request,
                     reply_to=self.subscription,
                 )
-                request.topic = "FrameTransformation.GetCalibration"
+                request.topic = "CalibrationServer.GetCalibration"
                 self.channel.publish(message=request)
                 self.logger.info("Requesting calibrations, ids={}", self.camera_ids)
 
@@ -48,7 +48,7 @@ class CalibrationFetcher:
                 self.logger.warn(
                     "RPC failed, code={}, why={}".format(
                         message.status.code,
-                        message.status.code.why,
+                        message.status.why,
                     ),
                 )
         return self.calibrations
