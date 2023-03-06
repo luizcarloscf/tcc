@@ -34,7 +34,7 @@ class ArUcoDetector:
         return array
 
     @staticmethod
-    def to_np(tensor):
+    def to_np(tensor: Tensor) -> np.ndarray:
         if len(tensor.shape.dims) != 2 or tensor.shape.dims[0].name != 'rows':
             return np.array([])
         shape = (tensor.shape.dims[0].size, tensor.shape.dims[1].size)
@@ -68,7 +68,7 @@ class ArUcoDetector:
             tensor.floats.extend(array.ravel().tolist())
         elif array.dtype == np.float64:
             tensor.type = DataType.Value('DOUBLE_TYPE')
-            tensor.floats.extend(array.ravel().tolist())
+            tensor.doubles.extend(array.ravel().tolist())
         return tensor
 
     def detect(self, image: Image) -> ObjectAnnotations:
@@ -76,7 +76,6 @@ class ArUcoDetector:
         detections, ids, _ = self.detector.detectMarkers(array)
         annotations = ObjectAnnotations()
         for i, corners in enumerate(detections):
-            # corners = corners.reshape((4, 2))
             object = annotations.objects.add()
             object.label = str(ids[i][0])
             object.id = ids[i][0]
@@ -90,7 +89,7 @@ class ArUcoDetector:
 
     def localize(self,
                  annotations: ObjectAnnotations,
-                 calibration: CameraCalibration) -> FrameTransformations:
+                 calibration: CameraCalibration) -> Union[FrameTransformations, None]:
         sx = annotations.resolution.width / calibration.resolution.width
         sy = annotations.resolution.height / calibration.resolution.height
         scale = np.array([[sx, 0.0, 0.0], [0.0, sy, 0.0], [0.0, 0.0, 1.0]])
@@ -153,6 +152,7 @@ class ArUcoDetector:
             annotations=annotations,
             calibration=calibrations[camera_id],
         )
-        message = Message(content=transformations)
-        message.topic = "ArUco.{}.FrameTransformations".format(camera_id)
-        self.channel.publish(message=message)
+        if transformations is not None:
+            message = Message(content=transformations)
+            message.topic = "ArUco.{}.FrameTransformations".format(camera_id)
+            self.channel.publish(message=message)
