@@ -1,42 +1,44 @@
-import sys
+import re
 import time
+import socket
 
-import numpy as np
+from typing  import Tuple
 
-from turbojpeg import TurboJPEG
+from dateutil import parser as dp
+from opencensus.ext.zipkin.trace_exporter import ZipkinExporter
+
+from is_wire.core import Channel, Message, Logger, AsyncTransport, Tracer
+from is_wire.rpc import ServiceProvider, LogInterceptor, TracingInterceptor
+
+from google.protobuf.empty_pb2 import Empty
 from google.protobuf.json_format import Parse
 
-from is_msgs.image_pb2 import Image
-from is_wire.core import Channel, Message, Logger
+from is_msgs.image_pb2 import ImageSettings
+from is_msgs.common_pb2 import FieldSelector, SamplingSettings
+from is_msgs.camera_pb2 import CameraConfig, CameraConfigFields, CameraSettings
 
-from is_camera.driver import CameraDriver
-from is_camera.conf.options_pb2 import CameraGatewayOptions, RabbitMQ, Zipkin
+from is_wire.rpc.context import Context
+from is_wire.core import Status, StatusCode
+
+from is_camera.driver.opencv2 import OpenCV2CameraDriver
+from is_camera.conf.options_pb2 import Camera
 
 
 class CameraGateway:
-    def __init__(self,
-                 options_path: str = "/conf/options.json"):
+    def __init__(self, broker_uri: str, zipkin_uri: str, camera: Camera):
         self.logger = Logger("CameraGateway")
-        self.options = self.load_json(path=options_path)
+        self.id = camera.id
+        self.broker_uri = broker_uri
+        self.zipkin_uri = zipkin_uri
+        self.config_path = camera.initial_config
+        self.driver = OpenCV2CameraDriver(device=camera.device)
 
-        rabbitmq_uri = self.rabbitmq_uri(rabbitmq=self.options.rabbitmq)
-        self.publish_channel = Channel(rabbitmq_uri)
-        self.publish_topic = "CameraGateway.{}.Frame".format(
-            self.options.camera.id,
-        )
-
-        self.driver = CameraDriver(config=self.options.camera)
-        self.driver.start()
-
-        self.encoder = TurboJPEG()
-
-    def load_json(self,
-                  path: str = "/etc/is_camera/options.json") -> CameraGatewayOptions:
+    def load_json(self, path: str = "/etc/is-camera/camera_0.json") -> CameraConfig:
         try:
             with open(path, 'r') as f:
                 try:
-                    op = Parse(f.read(), CameraGatewayOptions())
-                    self.logger.info('FaceDetectorOptions: \n{}', op)
+                    op = Parse(f.read(), CameraConfig())
+                    self.logger.info('CameraConfig: \n{}', op)
                     return op
                 except Exception as ex:
                     self.logger.critical('Unable to load options from \'{}\'. \n{}', path, ex)
@@ -44,50 +46,199 @@ class CameraGateway:
             self.logger.critical('Unable to open file \'{}\'', path)
 
     @staticmethod
-    def rabbitmq_uri(rabbitmq: RabbitMQ) -> str:
-        return "{}://{}:{}@{}:{}".format(
-            rabbitmq.protocol,
-            rabbitmq.user,
-            rabbitmq.password,
-            rabbitmq.host,
-            rabbitmq.port,
-        )
+    def check_status_get(status: Status) -> bool:
+        if (status.code == StatusCode.UNIMPLEMENTED) or (status.code == StatusCode.OK):
+            return True
+        else:
+            return False
+        
+    @staticmethod
+    def set_attribute(field, value, status):
+        if status.code == StatusCode.OK:
+            field.CopyFrom(value)
+
+    def get_config(self, field_selector: FieldSelector, ctx: Context):
+        fields = field_selector.fields
+        if CameraConfigFields.ALL in fields:
+            if CameraConfigFields.IMAGE_SETTINGS not in fields:
+                fields.extend(CameraConfigFields.IMAGE_SETTINGS)
+            if CameraConfigFields.CAMERA_SETTINGS not in fields:
+                fields.extend(CameraConfigFields.CAMERA_SETTINGS)
+            if CameraConfigFields.SAMPLING_SETTINGS not in fields:
+                fields.extend(CameraConfigFields.SAMPLING_SETTINGS)
+        config = CameraConfig()
+        for field in fields:
+            if field == CameraConfigFields.IMAGE_SETTINGS:
+                config.image = ImageSettings()
+                status, value = self.driver.get_resolution()
+                self.set_attribute(config.image.resolution, value, status)
+                status, value = self.driver.get_color_space()
+                self.set_attribute(config.image.color_space, value, status)
+                status, value = self.driver.get_format()
+                self.set_attribute(config.image.format, value, status)
+                status, value = self.driver.get_region_of_interest()
+                self.set_attribute(config.image.region, value, status)
+            if field == CameraConfigFields.SAMPLING_SETTINGS:
+                config.sampling = SamplingSettings()
+                status, value = self.driver.get_sampling_rate()
+                self.set_attribute(config.sampling.frequency, value, status)
+                status, value  = self.driver.get_delay()
+                self.set_attribute(config.sampling.delay, value, status)
+            if field == CameraConfigFields.CAMERA_SETTINGS:
+                config.camera = CameraSettings()
+                status, value = self.driver.get_brightness()
+                self.set_attribute(config.camera.brightness, value, status)
+                status, value = self.driver.get_exposure()
+                self.set_attribute(config.camera.exposure, value, status)
+                status, value = self.driver.get_focus()
+                self.set_attribute(config.camera.focus, value, status)
+                status, value = self.driver.get_gain()
+                self.set_attribute(config.camera.gain, value, status)
+                status, value = self.driver.get_gamma()
+                self.set_attribute(config.camera.gamma, value, status)
+                status, value = self.driver.get_hue()
+                self.set_attribute(config.camera.hue, value, status)
+                status, value = self.driver.get_iris()
+                self.set_attribute(config.camera.iris, value, status)
+                status, value = self.driver.get_saturation()
+                self.set_attribute(config.camera.saturation, value, status)
+                status, value = self.driver.get_sharpness()
+                self.set_attribute(config.camera.sharpness, value, status)
+                status, value = self.driver.get_shutter()
+                self.set_attribute(config.camera.shutter, value, status)
+                status, value = self.driver.get_white_balance_bu()
+                self.set_attribute(config.camera.white_balance_bu, value, status)
+                status, value = self.driver.get_white_balance_rv()
+                self.set_attribute(config.camera.white_balance_rv, value, status)
+                status, value = self.driver.get_zoom()
+                self.set_attribute(config.camera.zoom, value, status)
+        return config
 
     @staticmethod
-    def zipkin_uri(zipkin: Zipkin):
-        return "{}://{}:{}".format(
-            zipkin.protocol,
-            zipkin.host,
-            zipkin.port,
-        )
+    def check_status_set(obj, field, status):
+        if (status.code == StatusCode.OK) and (obj.HasField(field)):
+            return True
+        else:
+            return False
 
-    def to_image(self, input_image: np.ndarray, compression_level=0.8) -> Image:
-        # params = [cv2.IMWRITE_JPEG_QUALITY, int(compression_level * (100 - 0) + 0)]
-        # cimage = cv2.imencode(ext='.jpeg', img=input_image, params=params)
-        quality = int(compression_level * (100 - 0) + 0)
-        return Image(data=self.encoder.encode(input_image, quality=quality))
+    def set_config(self, config, ctx):
+        print()
+        status = Status(code=StatusCode.OK)
+        if config.image:
+            image = config.image
+            if self.check_status_set(image, "resolution", status):
+                status = self.driver.set_resolution(image.resolution)
+            if self.check_status_set(image, "color_space", status):
+                status = self.driver.set_color_space(image.color_space)
+            if self.check_status_set(image, "format", status):
+                status = self.driver.set_format(image.format)
+            if self.check_status_set(image, "region", status):
+                status = self.driver.set_region_of_interest(image.region)
+        if config.sampling:
+            sampling = config.sampling
+            if self.check_status_set(sampling, "frequency", status):
+                status = self.driver.set_sampling_rate(sampling.frequency)
+            if self.check_status_set(sampling, "delay", status):
+                status = self.driver.set_delay(sampling.delay)
+        if config.camera:
+            camera = config.camera
+            if self.check_status_set(camera, "brightness", status):
+                status = self.driver.set_brightness(camera.brightness)
+            if self.check_status_set(camera, "exposure", status):
+                status = self.driver.set_exposure(camera.exposure)
+            if self.check_status_set(camera, "focus", status):
+                status = self.driver.set_focus(camera.focus)
+            if self.check_status_set(camera, "gain", status):
+                status = self.driver.set_gain(camera.gain)
+            if self.check_status_set(camera, "gamma", status):
+                status = self.driver.set_gamma(camera.gamma)
+            if self.check_status_set(camera, "hue", status):
+                status = self.driver.set_hue(camera.hue)
+            if self.check_status_set(camera, "iris", status):
+                status = self.driver.set_iris(camera.iris)
+            if self.check_status_set(camera, "saturation", status):
+                status = self.driver.set_saturation(camera.saturation)
+            if self.check_status_set(camera, "sharpness", status):
+                status = self.driver.set_sharpness(camera.sharpness)
+            if self.check_status_set(camera, "shutter", status):
+                status = self.driver.set_shutter(camera.shutter)
+            if self.check_status_set(camera, "white_balance_bu", status):
+                status = self.driver.set_white_balance_bu(camera.white_balance_bu)
+            if self.check_status_set(camera, "white_balance_rv", status):
+                status = self.driver.set_white_balance_rv(camera.white_balance_rv)
+            if self.check_status_set(camera, "zoom", status):
+                status = self.driver.set_zoom(camera.zoom)
+        if status.code == StatusCode.OK:
+            return Empty()
+        else:
+            status
+
+    def get_zipkin(self, uri: str) -> Tuple[str, str]:
+        zipkin_ok = re.match("http:\\/\\/([a-zA-Z0-9\\.]+)(:(\\d+))?", uri)
+        if not zipkin_ok:
+            self.logger.critical("Invalid zipkin uri {}, \
+                                 expected http://<hostname>:<port>".format(uri))
+        return zipkin_ok.group(1), int(zipkin_ok.group(3))
+
+    def span_duration_ms(span):
+        dt = dp.parse(span.end_time) - dp.parse(span.start_time)
+        return dt.total_seconds() * 1000.0
 
     def run(self):
+        service_name = "CameraGateway"
+        config = self.load_json(path=self.config_path)
+        ok = self.set_config(config=config, ctx=None)
+        if not isinstance(ok, Empty):
+            self.logger.critical("Failed to set initial configuration.\n \
+                                  Code={}, why={}".format(ok.code, ok.why))
+        time.sleep(2)
+        publish_channel = Channel(self.broker_uri)
+        zipkin_uri, zipkin_port = self.get_zipkin(uri=self.zipkin_uri)
+        exporter = ZipkinExporter(
+            service_name=service_name,
+            host_name=zipkin_uri,
+            port=zipkin_port,
+            transport=AsyncTransport,
+        )
+        rpc_channel = Channel(uri=self.broker_uri) 
+        server = ServiceProvider(channel=rpc_channel)
+        logging = LogInterceptor()
+        tracing = TracingInterceptor(exporter=exporter)        
+        server.add_interceptor(interceptor=logging)
+        server.add_interceptor(interceptor=tracing)
+        server.delegate(
+            topic="{}.{}.GetConfig".format(service_name, self.id),
+            request_type=FieldSelector,
+            reply_type=CameraConfig,
+            function=self.get_config,
+        )
+        server.delegate(
+            topic="{}.{}.SetConfig".format(service_name, self.id),
+            request_type=CameraConfig,
+            reply_type=Empty,
+            function=self.set_config,
+        )
+        self.logger.info("RPC listening for requests")
+        self.driver.start_capture()
         while True:
-            image = self.driver.read()
-            ti = time.perf_counter()
-            content = self.to_image(input_image=image)
-            message = Message(content=content)
-            te = time.perf_counter()
-            self.publish_channel.publish(
-                message=message,
-                topic=self.publish_topic,
-            )
-            tf = time.perf_counter()
-            self.logger.info("Encode image, took_ms={}".format((te-ti)*1000))
-            self.logger.info("Publish image, took_ms={}".format((tf-te)*1000))
-
-
-def main():
-    options_path = sys.argv[1] if len(sys.argv) > 1 else 'options.json'
-    gateway = CameraGateway(options_path=options_path)
-    gateway.run()
-
-
-if __name__ == "__main__":
-    main()
+            tracer = Tracer(exporter=exporter)
+            message = Message()
+            span = tracer.start_span(name='frame')
+            image = self.driver.grab_image()
+            message = Message(content=image)
+            message.topic = "{}.{}.Frame".format(service_name, self.id)
+            message.inject_tracing(span)
+            tracer.end_span()
+            if len(image.data) > 0:
+                publish_channel.publish(message=message)
+            else:
+                self.logger.warn("No image captured.")
+            self.logger.info("Publish image, took_ms={}".format(
+                round(self.span_duration_ms(span), 2)
+            ))
+            try:
+                message = rpc_channel.consume(timeout=0)
+                if server.should_serve(message):
+                    server.serve(message)
+            except socket.timeout:
+                pass

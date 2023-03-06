@@ -1,21 +1,9 @@
 {
-	"rabbitmq" : {
-		"protocol": "amqp",
-	    "user": "guest",
-	    "password": "guest",
-	    "host" : "localhost",
-	    "port" : 5672
-	},
-	"zipkin" : {
-		"protocol": "http",
-	    "host" : "localhost",
-	    "port" : 9411
-	},
+	"rabbitmq_uri": "amqp://guest:guest@rabbitmq.default:5672",
+	"zipkin_uri" : "http://zipkin.default:9411",
 	"camera": {
-	    "id": 9,
-	    "device": "/dev/video0",
-	    "framerate": 30,
-		"height" : 720,
-		"width" : 1280
+		"id": 0,
+		"device": "/dev/video0",
+		"initial_config": "./conf/camera_0.json"
 	}
 }
