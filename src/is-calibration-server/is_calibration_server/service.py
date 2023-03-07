@@ -1,9 +1,14 @@
+import re
 import sys
 
-from is_wire.core import Logger, Channel
+from typing import Tuple
+
 from google.protobuf.json_format import Parse
-from is_wire.rpc import ServiceProvider, LogInterceptor
+from opencensus.ext.zipkin.trace_exporter import ZipkinExporter
 from is_msgs.camera_pb2 import GetCalibrationRequest, GetCalibrationReply
+
+from is_wire.core import Logger, Channel, AsyncTransport
+from is_wire.rpc import ServiceProvider, LogInterceptor, TracingInterceptor
 
 from is_calibration_server.calibration import CalibrationServer
 from is_calibration_server.conf.options_pb2 import CalibrationServerOptions
@@ -23,21 +28,41 @@ def load_json(logger: Logger,
         logger.critical('Unable to open file \'{}\'', path)
 
 
-def main():
-    options_filename = sys.argv[1] if len(sys.argv) > 1 else '/etc/is-calibration-server/options.json'
+def get_zipkin(logger: Logger, uri: str) -> Tuple[str, str]:
+        zipkin_ok = re.match("http:\\/\\/([a-zA-Z0-9\\.]+)(:(\\d+))?", uri)
+        if not zipkin_ok:
+            logger.critical("Invalid zipkin uri {}, \
+                             expected http://<hostname>:<port>".format(uri))
+        return zipkin_ok.group(1), int(zipkin_ok.group(3))
 
-    service_name = 'CalibrationServer'
-    logger = Logger(name=service_name)
+def main():
+    options_filename = sys.argv[1] if len(sys.argv) > 1 else "/etc/is-calibration-server/options.json"
+    service_name = "CalibrationServer"
+    logger = Logger(name="Service")
 
     options = load_json(logger=logger, path=options_filename)
     server = CalibrationServer(path=options.calibrations_path)
-    channel = Channel(options.broker_uri)
-    provider = ServiceProvider(channel)
-    provider.add_interceptor(LogInterceptor())
-    provider.delegate(topic="{}.GetCalibration".format(service_name),
-                      function=server.get_calibrations,
-                      request_type=GetCalibrationRequest,
-                      reply_type=GetCalibrationReply)
+
+    channel = Channel(uri=options.broker_uri)
+    zipkin_uri, zipkin_port = get_zipkin(logger=logger, uri=options.zipkin_uri)
+    exporter = ZipkinExporter(
+        service_name=service_name,
+        host_name=zipkin_uri,
+        port=zipkin_port,
+        transport=AsyncTransport,
+    )
+
+    logging = LogInterceptor()
+    tracing = TracingInterceptor(exporter=exporter)
+    provider = ServiceProvider(channel=channel)
+    provider.add_interceptor(interceptor=logging)
+    provider.add_interceptor(interceptor=tracing)    
+    provider.delegate(
+        topic="{}.GetCalibration".format(service_name),
+        function=server.get_calibrations,
+        request_type=GetCalibrationRequest,
+        reply_type=GetCalibrationReply,
+    )
     provider.run()
 
 
