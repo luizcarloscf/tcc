@@ -1,8 +1,5 @@
 from typing import Tuple, Union
 
-import cv2
-import numpy as np
-
 from is_wire.core import Status, StatusCode
 from is_msgs.camera_pb2 import CameraSetting
 from google.protobuf.wrappers_pb2 import FloatValue, Int64Value
@@ -276,7 +273,7 @@ class CameraDriver:
             why="Zoom property not implemented for this camera.",
         )
         return status
-    
+
     def get_stream_channel_id(self) -> Tuple[Status, Union[Int64Value, None]]:
         status = Status(
             code=StatusCode.UNIMPLEMENTED,

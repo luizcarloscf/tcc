@@ -2,7 +2,7 @@ import sys
 import logging
 
 from google.protobuf.json_format import Parse
-from is_wire.core import Logger, Subscription, Channel
+from is_wire.core import Logger
 
 from is_camera.gateway import CameraGateway
 from is_camera.conf.options_pb2 import CameraGatewayOptions
@@ -23,9 +23,7 @@ def load_json(logger: Logger,
 
 
 def main():
-    service_name = "CameraGateway"
-    logger = Logger(name=service_name, level=logging.DEBUG)
-
+    logger = Logger(name="Service", level=logging.DEBUG)
     options_filename = sys.argv[1] if len(sys.argv) > 1 else '/etc/is-camera/options.json'
     options = load_json(logger=logger, path=options_filename)
     gateway = CameraGateway(

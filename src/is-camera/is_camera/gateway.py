@@ -2,7 +2,7 @@ import re
 import time
 import socket
 
-from typing  import Tuple
+from typing import Tuple
 
 from dateutil import parser as dp
 from opencensus.ext.zipkin.trace_exporter import ZipkinExporter
@@ -51,7 +51,7 @@ class CameraGateway:
             return True
         else:
             return False
-        
+
     @staticmethod
     def set_attribute(field, value, status):
         if status.code == StatusCode.OK:
@@ -59,16 +59,16 @@ class CameraGateway:
 
     def get_config(self, field_selector: FieldSelector, ctx: Context):
         fields = field_selector.fields
-        if CameraConfigFields.ALL in fields:
-            if CameraConfigFields.IMAGE_SETTINGS not in fields:
-                fields.extend(CameraConfigFields.IMAGE_SETTINGS)
-            if CameraConfigFields.CAMERA_SETTINGS not in fields:
-                fields.extend(CameraConfigFields.CAMERA_SETTINGS)
-            if CameraConfigFields.SAMPLING_SETTINGS not in fields:
-                fields.extend(CameraConfigFields.SAMPLING_SETTINGS)
+        if CameraConfigFields.Value("ALL") in fields:
+            if CameraConfigFields.Value("IMAGE_SETTINGS") not in fields:
+                fields.extend(CameraConfigFields.Value("IMAGE_SETTINGS"))
+            if CameraConfigFields.Value("CAMERA_SETTINGS") not in fields:
+                fields.extend(CameraConfigFields.Value("CAMERA_SETTINGS"))
+            if CameraConfigFields.Value("SAMPLING_SETTINGS") not in fields:
+                fields.extend(CameraConfigFields.Value("SAMPLING_SETTINGS"))
         config = CameraConfig()
         for field in fields:
-            if field == CameraConfigFields.IMAGE_SETTINGS:
+            if field == CameraConfigFields.Value("IMAGE_SETTINGS"):
                 config.image = ImageSettings()
                 status, value = self.driver.get_resolution()
                 self.set_attribute(config.image.resolution, value, status)
@@ -78,13 +78,13 @@ class CameraGateway:
                 self.set_attribute(config.image.format, value, status)
                 status, value = self.driver.get_region_of_interest()
                 self.set_attribute(config.image.region, value, status)
-            if field == CameraConfigFields.SAMPLING_SETTINGS:
+            if field == CameraConfigFields.Value("SAMPLING_SETTINGS"):
                 config.sampling = SamplingSettings()
                 status, value = self.driver.get_sampling_rate()
                 self.set_attribute(config.sampling.frequency, value, status)
-                status, value  = self.driver.get_delay()
+                status, value = self.driver.get_delay()
                 self.set_attribute(config.sampling.delay, value, status)
-            if field == CameraConfigFields.CAMERA_SETTINGS:
+            if field == CameraConfigFields.Value("CAMERA_SETTINGS"):
                 config.camera = CameraSettings()
                 status, value = self.driver.get_brightness()
                 self.set_attribute(config.camera.brightness, value, status)
@@ -122,9 +122,8 @@ class CameraGateway:
             return False
 
     def set_config(self, config, ctx):
-        print()
         status = Status(code=StatusCode.OK)
-        if config.image:
+        if config.HasField("image"):
             image = config.image
             if self.check_status_set(image, "resolution", status):
                 status = self.driver.set_resolution(image.resolution)
@@ -134,13 +133,13 @@ class CameraGateway:
                 status = self.driver.set_format(image.format)
             if self.check_status_set(image, "region", status):
                 status = self.driver.set_region_of_interest(image.region)
-        if config.sampling:
+        if self.check_status_set(config, "sampling", status):
             sampling = config.sampling
             if self.check_status_set(sampling, "frequency", status):
                 status = self.driver.set_sampling_rate(sampling.frequency)
             if self.check_status_set(sampling, "delay", status):
                 status = self.driver.set_delay(sampling.delay)
-        if config.camera:
+        if self.check_status_set(config, "camera", status):
             camera = config.camera
             if self.check_status_set(camera, "brightness", status):
                 status = self.driver.set_brightness(camera.brightness)
@@ -171,7 +170,7 @@ class CameraGateway:
         if status.code == StatusCode.OK:
             return Empty()
         else:
-            status
+            return status
 
     def get_zipkin(self, uri: str) -> Tuple[str, str]:
         zipkin_ok = re.match("http:\\/\\/([a-zA-Z0-9\\.]+)(:(\\d+))?", uri)
@@ -180,6 +179,7 @@ class CameraGateway:
                                  expected http://<hostname>:<port>".format(uri))
         return zipkin_ok.group(1), int(zipkin_ok.group(3))
 
+    @staticmethod
     def span_duration_ms(span):
         dt = dp.parse(span.end_time) - dp.parse(span.start_time)
         return dt.total_seconds() * 1000.0
@@ -192,7 +192,7 @@ class CameraGateway:
             self.logger.critical("Failed to set initial configuration.\n \
                                   Code={}, why={}".format(ok.code, ok.why))
         time.sleep(2)
-        publish_channel = Channel(self.broker_uri)
+        channel = Channel(self.broker_uri)
         zipkin_uri, zipkin_port = self.get_zipkin(uri=self.zipkin_uri)
         exporter = ZipkinExporter(
             service_name=service_name,
@@ -200,10 +200,9 @@ class CameraGateway:
             port=zipkin_port,
             transport=AsyncTransport,
         )
-        rpc_channel = Channel(uri=self.broker_uri) 
-        server = ServiceProvider(channel=rpc_channel)
+        server = ServiceProvider(channel=channel)
         logging = LogInterceptor()
-        tracing = TracingInterceptor(exporter=exporter)        
+        tracing = TracingInterceptor(exporter=exporter)
         server.add_interceptor(interceptor=logging)
         server.add_interceptor(interceptor=tracing)
         server.delegate(
@@ -222,7 +221,6 @@ class CameraGateway:
         self.driver.start_capture()
         while True:
             tracer = Tracer(exporter=exporter)
-            message = Message()
             span = tracer.start_span(name='frame')
             image = self.driver.grab_image()
             message = Message(content=image)
@@ -230,14 +228,12 @@ class CameraGateway:
             message.inject_tracing(span)
             tracer.end_span()
             if len(image.data) > 0:
-                publish_channel.publish(message=message)
+                channel.publish(message=message)
+                self.logger.info("Publish image, took_ms={}".format(round(self.span_duration_ms(span), 2)))
             else:
                 self.logger.warn("No image captured.")
-            self.logger.info("Publish image, took_ms={}".format(
-                round(self.span_duration_ms(span), 2)
-            ))
             try:
-                message = rpc_channel.consume(timeout=0)
+                message = channel.consume(timeout=0)
                 if server.should_serve(message):
                     server.serve(message)
             except socket.timeout:

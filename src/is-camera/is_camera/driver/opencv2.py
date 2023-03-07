@@ -7,7 +7,7 @@ import numpy as np
 
 from turbojpeg import TurboJPEG
 from is_wire.core import Status, StatusCode
-from google.protobuf.wrappers_pb2 import FloatValue, Int64Value
+from google.protobuf.wrappers_pb2 import FloatValue
 from is_msgs.image_pb2 import Image, ColorSpace, ColorSpaces, ImageFormat, ImageFormats, Resolution
 
 from is_camera.driver.base import CameraDriver
@@ -45,7 +45,7 @@ class OpenCV2CameraDriver(CameraDriver):
                 return Image()
             cimage = cv2.imencode(ext=encode_format, img=image, params=params)
             return Image(data=cimage[1].tobytes())
-    
+
     def get_sampling_rate(self) -> Tuple[Status, Union[FloatValue, None]]:
         rate = FloatValue()
         rate.value = self._camera.get(cv2.CAP_PROP_FPS)
@@ -67,7 +67,7 @@ class OpenCV2CameraDriver(CameraDriver):
             )
         else:
             return Status(code=StatusCode.OK)
-    
+
     def get_color_space(self) -> Tuple[Status, Union[ColorSpace, None]]:
         color_space = ColorSpace()
         color_space.value = ColorSpaces.RGB
@@ -76,21 +76,21 @@ class OpenCV2CameraDriver(CameraDriver):
     def get_format(self) -> Tuple[Status, Union[ImageFormat, None]]:
         image_format = ImageFormat()
         if self._encode_format == ".jpeg":
-            image_format.format = ImageFormats.JPEG
+            image_format.format = ImageFormats.Value("JPEG")
         elif self._encode_format == ".png":
-            image_format.format = ImageFormats.PNG
+            image_format.format = ImageFormats.Value("PNG")
         elif self._encode_format == ".webp":
-            image_format.format = ImageFormats.WebP
+            image_format.format = ImageFormats.Value("WebP")
         image_format.compression.value = self._compression_level
         status = Status(code=StatusCode.OK)
         return status, image_format
 
     def set_format(self, image_format: ImageFormat) -> Status:
-        if image_format.format == ImageFormats.JPEG:
+        if image_format.format == ImageFormats.Value("JPEG"):
             self._encode_format = ".jpeg"
-        elif image_format.format == ImageFormats.PNG:
+        elif image_format.format == ImageFormats.Value("PNG"):
             self._encode_format = ".png"
-        elif image_format.format == ImageFormats.WebP:
+        elif image_format.format == ImageFormats.Value("WebP"):
             self._encode_format = ".webp"
         else:
             return Status(
