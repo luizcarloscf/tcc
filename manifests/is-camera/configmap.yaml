@@ -9,23 +9,36 @@ metadata:
 data:
   options: |-
     {
-      "rabbitmq" : {
-        "protocol": "amqp",
-          "user": "guest",
-          "password": "guest",
-          "host" : "rabbitmq.default",
-          "port" : 5672
-      },
-      "zipkin" : {
-        "protocol": "http",
-          "host" : "zipkin.default",
-          "port" : 9411
-      },
+      "rabbitmq_uri" : "amqp://guest:guest@rabbitmq.default:5672",
+      "zipkin_uri": "http://zipkin.default:9411",
       "camera": {
-          "id": 1,
+          "id": 0,
           "device": "/dev/video0",
-          "framerate": 10,
-        "height" : 720,
-        "width" : 1280
+          "initial_config": "/etc/is-camera/cameras/camera_0.json"
+      }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: is-camera-initial-config
+  namespace: default
+  labels:
+    app: is-camera-initial-config
+data:
+  camera_0: |-
+    {
+      "sampling": {
+        "frequency": 1
+      },
+      "image": {
+        "resolution": {
+            "width": 1280,
+            "height": 720
+        },
+        "format": {
+            "format": "JPEG",
+            "compression": 0.8
+        }
       }
     }
