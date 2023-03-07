@@ -1,6 +1,6 @@
 from threading import Thread
 from queue import Queue, Empty
-from typing import Union, Tuple
+from typing import Union, Tuple, Any
 
 import cv2
 import numpy as np
@@ -20,6 +20,7 @@ class OpenCV2CameraDriver(CameraDriver):
         self._encoder = TurboJPEG()
         self._encode_format = ".jpeg"
         self._compression_level = 0.8
+        self._use_turbojpeg = True
 
         self._camera = cv2.VideoCapture(device, apiPreference=cv2.CAP_V4L2)
         self._camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
@@ -28,22 +29,20 @@ class OpenCV2CameraDriver(CameraDriver):
 
     def to_image(self,
                  image: np.ndarray,
-                 encode_format: str = '.jpeg',
-                 compression_level: float = 0.8,
                  use_turbojpeg: bool = True) -> Image:
-        if use_turbojpeg:
-            quality = int(compression_level * (100 - 0) + 0)
+        if self._use_turbojpeg:
+            quality = int(self._compression_level * (100 - 0) + 0)
             return Image(data=self._encoder.encode(image, quality=quality))
         else:
-            if encode_format == '.jpeg':
-                params = [cv2.IMWRITE_JPEG_QUALITY, int(compression_level * (100 - 0) + 0)]
-            elif encode_format == '.png':
-                params = [cv2.IMWRITE_PNG_COMPRESSION, int(compression_level * (9 - 0) + 0)]
-            elif encode_format == '.webp':
-                params = [cv2.IMWRITE_WEBP_QUALITY, int(compression_level * (100 - 1) + 1)]
+            if self._encode_format == '.jpeg':
+                params = [cv2.IMWRITE_JPEG_QUALITY, int(self._compression_level * (100 - 0) + 0)]
+            elif self._encode_format == '.png':
+                params = [cv2.IMWRITE_PNG_COMPRESSION, int(self._compression_level * (9 - 0) + 0)]
+            elif self._encode_format == '.webp':
+                params = [cv2.IMWRITE_WEBP_QUALITY, int(self._compression_level * (100 - 1) + 1)]
             else:
                 return Image()
-            cimage = cv2.imencode(ext=encode_format, img=image, params=params)
+            cimage = cv2.imencode(ext=self._encode_format, img=image, params=params)
             return Image(data=cimage[1].tobytes())
 
     def get_sampling_rate(self) -> Tuple[Status, Union[FloatValue, None]]:
@@ -56,7 +55,7 @@ class OpenCV2CameraDriver(CameraDriver):
             )
             return status, None
         else:
-            return status, rate
+            return Status(code=StatusCode.OK), rate
 
     def set_sampling_rate(self, sampling_rate: FloatValue) -> Status:
         ret = self._camera.set(cv2.CAP_PROP_FPS, sampling_rate.value)
@@ -102,8 +101,8 @@ class OpenCV2CameraDriver(CameraDriver):
 
     def get_resolution(self) -> Tuple[Status, Union[Resolution, None]]:
         resolution = Resolution()
-        resolution.height = self._camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        resolution.width = self._camera.get(cv2.CAP_PROP_FRAME_WIDTH)
+        resolution.height = int(self._camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        resolution.width = int(self._camera.get(cv2.CAP_PROP_FRAME_WIDTH))
         if (resolution.height == 0) or (resolution.width == 0):
             status = Status(
                 code=StatusCode.INTERNAL_ERROR,
@@ -111,8 +110,7 @@ class OpenCV2CameraDriver(CameraDriver):
             )
             return status, None
         else:
-            status = Status(code=StatusCode.OK)
-            return status, resolution
+            return Status(code=StatusCode.OK), resolution
 
     def set_resolution(self, resolution: Resolution) -> Status:
         ret = self._camera.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution.height)
@@ -139,13 +137,8 @@ class OpenCV2CameraDriver(CameraDriver):
         self._stopped = True
         self._thread.join()
 
-    def grab_image(self) -> Image:
-        return self.to_image(
-            image=self._queue.get(block=True),
-            encode_format=self._encode_format,
-            compression_level=self._compression_level,
-            use_turbojpeg=True,
-        )
+    def grab_image(self) -> Any:
+        return self._queue.get(block=True)
 
     def _update(self):
         while not self._stopped:

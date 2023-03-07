@@ -1,8 +1,8 @@
 import sys
 import logging
 
-from google.protobuf.json_format import Parse
 from is_wire.core import Logger
+from google.protobuf.json_format import Parse
 
 from is_camera.gateway import CameraGateway
 from is_camera.conf.options_pb2 import CameraGatewayOptions
