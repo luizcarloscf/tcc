@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple, Union, Any
 
 from is_wire.core import Status, StatusCode
 from is_msgs.camera_pb2 import CameraSetting
@@ -289,10 +289,13 @@ class CameraDriver:
         return status
 
     def start_capture(self):
-        raise NotImplementedError("Driver subclass must implement 'start_capture' this method.")
+        raise NotImplementedError("Driver subclass must implement 'start_capture' method.")
 
     def stop_capture(self):
         raise NotImplementedError("Driver subclass must implement 'stop_capture' method.")
 
-    def grab_image(self) -> Image:
+    def grab_image(self) -> Any:
         raise NotImplementedError("Driver subclass must implement 'grab_image' method.")
+
+    def to_image(self, image: Any) -> Image:
+        raise NotImplementedError("Driver subclass must implement 'to_image' method.")

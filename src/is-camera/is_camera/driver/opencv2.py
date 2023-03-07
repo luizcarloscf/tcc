@@ -28,8 +28,7 @@ class OpenCV2CameraDriver(CameraDriver):
         self._stopped = False
 
     def to_image(self,
-                 image: np.ndarray,
-                 use_turbojpeg: bool = True) -> Image:
+                 image: np.ndarray) -> Image:
         if self._use_turbojpeg:
             quality = int(self._compression_level * (100 - 0) + 0)
             return Image(data=self._encoder.encode(image, quality=quality))
