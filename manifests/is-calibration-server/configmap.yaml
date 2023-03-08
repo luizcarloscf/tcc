@@ -9,5 +9,43 @@ data:
     {
       "broker_uri": "amqp://rabbitmq.default:5672",
       "zipkin_uri": "http://zipkin.default:9411",
-      "calibrations_path": "/opt/calibrations/etc/calibrations/ufes"
+      "calibrations_path": "/opt/is-aruco-calib/etc/calibrations/ufes"
     }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: is-calibration-cloner
+  namespace: default
+  labels:
+    app: is-calibration-cloner
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    set -o errexit
+    set -o pipefail
+    set -u
+    set -x
+    DEBIAN_FRONTEND=noninteractive
+    CLONE_DIR="${CLONE_DIR}"
+    GIT_URL="${GIT_URL}"
+    GIT_CHECKOUT="${GIT_CHECKOUT}"
+
+    install_git() {
+        echo "Installing git..."
+        apt-get update
+        apt-get install -y --no-install-recommends git ca-certificates
+        echo "Installing git... DONE!"
+    }
+    clone_and_checkout() {
+        echo "Clone and checkout repo..."
+        git clone $GIT_URL $CLONE_DIR
+        cd $CLONE_DIR
+        git checkout $GIT_CHECKOUT
+        echo "Clone and checkout repo... DONE!"
+    }
+    main() {
+        install_git
+        clone_and_checkout
+    }
+    main "$@"

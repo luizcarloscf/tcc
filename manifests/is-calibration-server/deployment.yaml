@@ -16,18 +16,21 @@ spec:
       nodeSelector:
         kubernetes.io/arch: amd64
       initContainers:
-      - image: alpine/git
-        name: git
-        command:
-        - git
-        - clone
-        - -b
-        - develop
-        - https://github.com/labviros/is-aruco-calib.git
-        - /opt/calibrations
+      - name: git
+        image: ubuntu:22.04
+        command: ["/scripts/entrypoint.sh"]
+        env:
+        - name: GIT_URL
+          value: https://github.com/labviros/is-aruco-calib
+        - name: GIT_CHECKOUT
+          value: 20fa2ea4d8ba69993f4759d495c81d8077938c57
+        - name: CLONE_DIR
+          value: /opt/is-aruco-calib
         volumeMounts:
-        - name: calibrations
-          mountPath: /opt/calibrations
+        - name: is-aruco-calib
+          mountPath: /opt/is-aruco-calib
+        - name: entrypoint
+          mountPath: /scripts
       containers:
       - name: service 
         image: luizcarloscf/is-calibration-server:0.2.0
@@ -40,8 +43,8 @@ spec:
         volumeMounts:
         - name: options
           mountPath: /etc/is-calibration-server/
-        - name: calibrations
-          mountPath: /opt/calibrations
+        - name: is-aruco-calib
+          mountPath: /opt/is-aruco-calib
       volumes:
       - name: options
         configMap:
@@ -49,6 +52,9 @@ spec:
           items:
           - key: config
             path: options.json
-      - name: calibrations
+      - name: is-aruco-calib
         emptyDir: {}
-      
+      - name: entrypoint
+        configMap:
+          name: is-calibration-cloner
+          defaultMode: 0744
