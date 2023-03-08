@@ -115,9 +115,11 @@ class ArUcoDetector:
                                  [x3, y3],
                                  [x4, y4]]], dtype=np.float32)
             if object.id not in self.settings.lengths.keys():
-                self.logger.critical(
-                    "Detected aruco with ID={}, but not found in configuration \
-                        its length".format(object.id))
+                self.logger.warn(
+                    "Detected aruco with ID={}, but not found in configuration its length".format(
+                    object.id),
+                )
+                continue
             marker_length = self.settings.lengths[object.id]
             rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(
                 corners,
@@ -155,23 +157,29 @@ class ArUcoDetector:
             exporter=self.exporter,
             span_context=message.extract_tracing(),
         )
-        span = None
+        detect_span, localize_span = None, None
 
-        with tracer.span(name="detect_and_localize") as _span:
+        with tracer.span(name="detect") as _detect_span:
             image = message.unpack(schema=Image)
             annotations = self.detect(image=image)
             message_obs = Message(content=annotations)
             message_obs.topic = "ArUco.{}.Detection".format(camera_id)
-            message_obs.inject_tracing(span=_span)
+            message_obs.inject_tracing(span=_detect_span)
+            self.channel.publish(message=message_obs)
+            detect_span = _detect_span
+
+        with tracer.span(name="localize") as _localize_span:
             transformations = self.localize(
                 annotations=annotations,
                 calibration=calibrations[camera_id],
             )
             message_ann = Message(content=transformations)
             message_ann.topic = "ArUco.{}.FrameTransformations".format(camera_id)
-            message_ann.inject_tracing(span=_span)
-            span = _span
-        self.channel.publish(message=message_obs)
-        self.channel.publish(message=message_ann)
-        took_ms = round(self.span_duration_ms(span), 2)
-        self.logger.info("Publish image, took_ms={}".format(took_ms))
+            message_ann.inject_tracing(span=_localize_span)
+            self.channel.publish(message=message_ann)
+            localize_span = _localize_span
+
+        took_ms = round(self.span_duration_ms(detect_span), 2)
+        self.logger.info("Detect, took_ms={}".format(took_ms))
+        took_ms = round(self.span_duration_ms(localize_span), 2)
+        self.logger.info("Localize, took_ms={}".format(took_ms))

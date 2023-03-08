@@ -37,8 +37,8 @@ def get_zipkin(logger: Logger, uri: str) -> Tuple[str, str]:
 
 
 def main():
-    service_name = "Service"
-    logger = Logger(name=service_name, level=logging.DEBUG)
+    service_name = "ArUcoDetector"
+    logger = Logger(name="Service", level=logging.DEBUG)
 
     options_filename = sys.argv[1] if len(sys.argv) > 1 else '/etc/is-aruco-detector/options.json'
     options = load_json(logger=logger, path=options_filename)
