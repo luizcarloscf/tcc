@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: is-calibration-server
+spec:
+  selector:
+    matchLabels:
+      app: is-calibration-server
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: is-calibration-server
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      initContainers:
+      - name: git
+        image: ubuntu:22.04
+        command: ["/scripts/entrypoint.sh"]
+        env:
+        - name: GIT_URL
+          value: https://github.com/labviros/is-aruco-calib
+        - name: GIT_CHECKOUT
+          value: 20fa2ea4d8ba69993f4759d495c81d8077938c57
+        - name: CLONE_DIR
+          value: /opt/is-aruco-calib
+        volumeMounts:
+        - name: is-aruco-calib
+          mountPath: /opt/is-aruco-calib
+        - name: entrypoint
+          mountPath: /scripts
+      containers:
+      - name: service 
+        image: luizcarloscf/is-calibration-server:0.2.0
+        command: ["is-calibration-server", "/etc/is-calibration-server/options.json"]
+        imagePullPolicy: Always
+        resources:
+          limits: 
+            cpu: "1.0"
+            memory: 128Mi
+        volumeMounts:
+        - name: options
+          mountPath: /etc/is-calibration-server/
+        - name: is-aruco-calib
+          mountPath: /opt/is-aruco-calib
+      volumes:
+      - name: options
+        configMap:
+          name: is-calibration-server
+          items:
+          - key: config
+            path: options.json
+      - name: is-aruco-calib
+        emptyDir: {}
+      - name: entrypoint
+        configMap:
+          name: is-calibration-cloner
+          defaultMode: 0744
