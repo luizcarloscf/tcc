@@ -1,9 +1,12 @@
+import re
 import sys
-import time
 import logging
 
-from is_wire.core import Logger, Subscription
+from typing import Tuple
+
 from google.protobuf.json_format import Parse
+from is_wire.core import Logger, Subscription, AsyncTransport
+from opencensus.ext.zipkin.trace_exporter import ZipkinExporter
 
 from is_aruco_detector.aruco import ArUcoDetector
 from is_aruco_detector.channel import CustomChannel
@@ -12,7 +15,7 @@ from is_aruco_detector.conf.options_pb2 import ArUcoDetectorOptions
 
 
 def load_json(logger: Logger,
-              path: str = "/etc/is_aruco_detector/options.json") -> ArUcoDetectorOptions:
+              path: str = "/etc/is-aruco-detector/options.json") -> ArUcoDetectorOptions:
     try:
         with open(path, 'r') as f:
             try:
@@ -25,27 +28,50 @@ def load_json(logger: Logger,
         logger.critical('Unable to open file \'{}\'', path)
 
 
+def get_zipkin(logger: Logger, uri: str) -> Tuple[str, str]:
+        zipkin_ok = re.match("http:\\/\\/([a-zA-Z0-9\\.]+)(:(\\d+))?", uri)
+        if not zipkin_ok:
+            logger.critical("Invalid zipkin uri {}, \
+                             expected http://<hostname>:<port>".format(uri))
+        return zipkin_ok.group(1), int(zipkin_ok.group(3))
+
+
 def main():
-    service_name = "ArUcoDetector"
+    service_name = "Service"
     logger = Logger(name=service_name, level=logging.DEBUG)
 
     options_filename = sys.argv[1] if len(sys.argv) > 1 else '/etc/is-aruco-detector/options.json'
     options = load_json(logger=logger, path=options_filename)
 
+    zipkin_uri, zipkin_port = get_zipkin(logger=logger, uri=options.zipkin_uri)
+    exporter = ZipkinExporter(
+        service_name=service_name,
+        host_name=zipkin_uri,
+        port=zipkin_port,
+        transport=AsyncTransport,
+    )
+
     channel = CustomChannel(uri=options.rabbitmq_uri)
     subscription = Subscription(channel=channel, name=service_name)
 
-    detector = ArUcoDetector(settings=options.config, channel=channel, subscription=subscription)
-    fetcher = CalibrationFetcher(channel=channel, subscription=subscription)
-
+    detector = ArUcoDetector(
+        settings=options.config,
+        channel=channel,
+        subscription=subscription,
+        exporter=exporter,
+    )
+    fetcher = CalibrationFetcher(
+        channel=channel,
+        subscription=subscription,
+        exporter=exporter,
+    )
     calibs = {}
 
     while True:
         messages = channel.consume_all()
-        ti = time.perf_counter()
         images_msgs = messages
         for message in messages:
-            if message.has_correlation_id and message.correlation_id is not None:
+            if message.correlation_id is not None:
                 calibs = fetcher.run(message=message)
                 images_msgs.remove(message)
         if len(images_msgs) > 0:
@@ -54,8 +80,6 @@ def main():
             if ok is not None:
                 fetcher.find(camera_id=ok)
         fetcher.check()
-        tf = time.perf_counter()
-        logger.info("Total, took_ms={}".format((tf - ti) * 1000))
 
 
 if __name__ == "__main__":

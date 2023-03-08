@@ -15,21 +15,19 @@ spec:
         app: is-aruco-detector
     spec:
       nodeSelector:
-        kubernetes.io/arch: arm64
+        kubernetes.io/arch: amd64
       containers:
       - name: is-aruco-detector
-        image: luizcarloscf/is-aruco-detector:0.1.0
+        image: luizcarloscf/is-aruco-detector:0.2.0
         command: ["is-aruco-detector", "/etc/is-aruco-detector/options.json"]
         imagePullPolicy: Always
         resources:
           limits:
             cpu: "1500m"
             memory: "1024Mi"
-            smarter-devices/video0: "1"
           requests:
             cpu: "1000m"
             memory: "512Mi"
-            smarter-devices/video0: "1"
         volumeMounts:
           - name: options
             mountPath: /etc/is-aruco-detector/
