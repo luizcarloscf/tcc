@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: is-mjpeg-server
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: is-mjpeg-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: is-mjpeg-server
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+      - name: is-mjpeg-server
+        image: labviros/is-mjpeg-server:0.0.1
+        env:
+        - name: IS_URI
+          value: 'amqp://rabbitmq.default'
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            cpu: 256m
+            memory: 1Gi
