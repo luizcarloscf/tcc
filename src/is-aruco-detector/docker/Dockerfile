@@ -21,7 +21,7 @@ COPY src/is-aruco-detector/ is-aruco-detector/
 
 WORKDIR /opt/is-aruco-detector/
 RUN set -eux; \
-    poetry install; \
+    poetry install --only main; \
     poetry run pip install --upgrade protobuf==3.20.3
 
 FROM python:3.10-slim-bullseye as final

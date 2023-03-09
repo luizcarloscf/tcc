@@ -21,7 +21,7 @@ COPY src/is-calibration-server/ is-calibration-server/
 
 WORKDIR /opt/is-calibration-server/
 RUN set -eux; \
-    poetry install; \
+    poetry install --only main; \
     poetry run pip install --upgrade protobuf==3.20.3
 
 FROM python:3.10-slim-bullseye as final
