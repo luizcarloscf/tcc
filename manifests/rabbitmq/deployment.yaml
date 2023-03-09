@@ -27,7 +27,7 @@ spec:
         - containerPort: 15672
         resources:
           limits:
-            memory: 2Gi
+            memory: 1Gi
             cpu: "2"
         volumeMounts:
         - name: rabbitmq-config

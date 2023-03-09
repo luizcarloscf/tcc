@@ -23,10 +23,9 @@ spec:
         resources:
           limits:
             memory: 4Gi
-            cpu: 1000m
+            cpu: 512m
 
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
