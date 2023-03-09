@@ -39,7 +39,7 @@ RUN set -eux; \
 WORKDIR /opt/is-calibration-server
 COPY --from=build /opt/is-calibration-server/.venv /opt/is-calibration-server/.venv
 COPY --from=build /opt/is-calibration-server/is_calibration_server /opt/is-calibration-server/is_calibration_server
-COPY --from=build /opt/is-calibration-server/conf /etc/is-calibration-server/options.json
+COPY --from=build /opt/is-calibration-server/conf/options.json /etc/is-calibration-server/options.json
 
 ENV VIRTUAL_ENV=/opt/is-calibration-server/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"

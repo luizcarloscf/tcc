@@ -39,7 +39,7 @@ RUN set -eux; \
 WORKDIR /opt/is-aruco-detector
 COPY --from=build /opt/is-aruco-detector/.venv /opt/is-aruco-detector/.venv
 COPY --from=build /opt/is-aruco-detector/is_aruco_detector /opt/is-aruco-detector/is_aruco_detector
-COPY --from=build /opt/is-aruco-detector/conf /etc/is-aruco-detector/options.json
+COPY --from=build /opt/is-aruco-detector/conf/options.json /etc/is-aruco-detector/options.json
 
 ENV VIRTUAL_ENV=/opt/is-aruco-detector/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"

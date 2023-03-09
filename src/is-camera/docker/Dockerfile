@@ -39,7 +39,7 @@ RUN set -eux; \
 WORKDIR /opt/is-camera
 COPY --from=build /opt/is-camera/.venv /opt/is-camera/.venv
 COPY --from=build /opt/is-camera/is_camera /opt/is-camera/is_camera
-COPY --from=build /opt/is-camera/conf /etc/is-camera/options.json
+COPY --from=build /opt/is-camera/conf/options.json /etc/is-camera/options.json
 
 ENV VIRTUAL_ENV=/opt/is-camera/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
