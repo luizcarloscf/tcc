@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+// Enumeration of ArUcoDictionaries
+enum ArUcoDictionary {
+    DICT_4X4_50 = 0;
+    DICT_4X4_100 = 1;
+    DICT_4X4_250 = 2;
+    DICT_4X4_1000 = 3;
+    DICT_5X5_50 = 4;
+    DICT_5X5_100 = 5;
+    DICT_5X5_250 = 6;
+    DICT_5X5_1000 = 7;
+    DICT_6X6_50 = 8;
+    DICT_6X6_100 = 9;
+    DICT_6X6_250 = 10;
+    DICT_6X6_1000 = 11;
+}
+
+// Models the ArUco detection and localization behavior
+message ArUcoSettings {
+    // aruco dictionary
+    ArUcoDictionary dictionary = 1;
+    // mapping between marker id and length
+    map<int64, float> lengths = 2;
+}
+  
+// Models the ArUco service
+message ArUcoDetectorOptions {
+    // RabbitMQ broker uri
+    string rabbitmq_uri = 1;
+    // Zipkin uri
+    string zipkin_uri = 2;
+    // ArUco configurations
+    ArUcoSettings config = 3;
+}

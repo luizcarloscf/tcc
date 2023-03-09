@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ include "zipkin.fullname" . }}-collector
+  namespace: {{ include "zipkin.namespace" . }}
   labels:
     {{- include "zipkin.labels" . | nindent 4 }}
 spec:

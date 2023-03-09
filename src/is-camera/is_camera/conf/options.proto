@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+// Models the camera options and its characteristics.
+message Camera {
+    // Camera identifier.
+    uint32 id = 1;
+    // Target device (E.g.: /dev/video0).
+    string device = 2;
+    // Initial camera parameters
+    string initial_config = 3;
+}
+
+// Models the service behavior.
+message CameraGatewayOptions {
+    // RabbitMQ broker uri
+    string rabbitmq_uri = 1;
+    // Zipkin uri
+    string zipkin_uri = 2;
+    // Camera configurations.
+    Camera camera = 3;
+}

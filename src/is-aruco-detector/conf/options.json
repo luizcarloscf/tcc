@@ -1,0 +1,11 @@
+{
+    "rabbitmq_uri" : "amqp://guest:guest@localhost:5672",
+	"zipkin_uri" : "http://localhost:9411",
+    "config": {
+        "dictionary": "DICT_4X4_50",
+        "lengths": {
+            "0": 0.300,
+            "1": 0.180
+        }
+    }
+}

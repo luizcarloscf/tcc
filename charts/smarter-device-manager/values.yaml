@@ -1,0 +1,83 @@
+# Default values for smarter-device-manager.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: registry.gitlab.com/arm-research/smarter/smarter-device-manager
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v1.1.2"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations:
+  node.kubernetes.io/bootstrap-checkpoint: "true"
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - "ALL"
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 15Mi
+  requests:
+    cpu: 10m
+    memory: 15Mi
+
+# selecting only rpi devices that are enabled
+nodeSelector:
+  smarter-device-manager: enabled
+  kubernetes.io/arch: arm64
+
+tolerations: []
+
+affinity: {}
+
+# values for RPI devices
+devices:
+- devicematch: ^snd$
+  nummaxdevices: 20
+- devicematch: ^gpiomem$
+  nummaxdevices: 40
+- devicematch: ^gpiochip[0-9]*$
+  nummaxdevices: 20
+- devicematch: ^hci[0-9]*$
+  nummaxdevices: 1
+- devicematch: ^i2c-[0-9]*$
+  nummaxdevices: 1
+- devicematch: ^rtc0$
+  nummaxdevices: 20
+- devicematch: ^video[0-9]*$
+  nummaxdevices: 20
+- devicematch: ^vchiq$
+  nummaxdevices: 20
+- devicematch: ^vcsm.*$
+  nummaxdevices: 20
+- devicematch: ^ttyUSB[0-9]*$
+  nummaxdevices: 1
+- devicematch: ^ttyACM[0-9]*$
+  nummaxdevices: 1
+- devicematch: ^ttyTHS[0-9]*$
+  nummaxdevices: 1
+- devicematch: ^ttyS[0-9]*$
+  nummaxdevices: 1

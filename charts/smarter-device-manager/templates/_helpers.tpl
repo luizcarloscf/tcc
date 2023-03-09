@@ -2,7 +2,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "zipkin.name" -}}
+{{- define "smarter-device-manager.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -11,7 +11,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "zipkin.fullname" -}}
+{{- define "smarter-device-manager.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -27,16 +27,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "zipkin.chart" -}}
+{{- define "smarter-device-manager.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "zipkin.labels" -}}
-helm.sh/chart: {{ include "zipkin.chart" . }}
-{{ include "zipkin.selectorLabels" . }}
+{{- define "smarter-device-manager.labels" -}}
+helm.sh/chart: {{ include "smarter-device-manager.chart" . }}
+{{ include "smarter-device-manager.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -46,17 +46,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "zipkin.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "zipkin.name" . }}
+{{- define "smarter-device-manager.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "smarter-device-manager.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "zipkin.serviceAccountName" -}}
+{{- define "smarter-device-manager.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "zipkin.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "smarter-device-manager.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -65,7 +65,7 @@ Create the name of the service account to use
 {{/*
 Define the namespace template if set with forceNamespace or .Release.Namespace is set
 */}}
-{{- define "zipkin.namespace" -}}
+{{- define "smarter-device-manager.namespace" -}}
 {{- if .Values.forceNamespace -}}
 {{ printf "%s" .Values.forceNamespace }}
 {{- else -}}
