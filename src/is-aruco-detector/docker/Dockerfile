@@ -12,7 +12,9 @@ RUN set -eux; \
         rustc \
         build-essential \
         libssl-dev \
-        cargo; \
+        cargo \
+        git \
+        ca-certificates; \
     pip3 install --upgrade poetry; \
     poetry config virtualenvs.in-project true;
 
@@ -22,7 +24,8 @@ COPY src/is-aruco-detector/ is-aruco-detector/
 WORKDIR /opt/is-aruco-detector/
 RUN set -eux; \
     poetry install --only main; \
-    poetry run pip install --upgrade protobuf==3.20.3
+    poetry run pip install --upgrade protobuf==3.20.3; \
+    poetry run pip install -I "git+https://github.com/labviros/opencensus-python.git"
 
 FROM python:3.10-slim-bullseye as final
 

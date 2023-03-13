@@ -1,6 +1,6 @@
 import time
 
-from typing import Dict, Union
+from typing import Dict, List
 
 from is_wire.core import StatusCode
 from is_wire.core import Channel, Subscription, Message, Logger, Tracer
@@ -21,29 +21,20 @@ class CalibrationFetcher:
         self.camera_ids = []
         self.calibrations = {}
 
-    def find(self, camera_id: int):
-        if camera_id not in self.camera_ids:
-            self.camera_ids.append(camera_id)
-
-    def check(self):
-        now = time.perf_counter()
-        if now >= self.timeout:
-            self.timeout = now + self.fetch_interval
-            if len(self.camera_ids) > 0:
-                tracer = Tracer(exporter=self.exporter)
-                with tracer.span(name="request") as _span:
-                    calib_request = GetCalibrationRequest()
-                    calib_request.ids.extend(self.camera_ids)
-                    request = Message(
-                        content=calib_request,
-                        reply_to=self.subscription,
-                    )
-                    request.topic = "CalibrationServer.GetCalibration"
-                    request.inject_tracing(_span)
-                self.channel.publish(message=request)
-                self.logger.info("Requesting calibrations, ids={}", self.camera_ids)
-
-    def run(self, message: Message) -> Dict[int, CameraCalibration]:
+    def run(self, cameras: List[int]) -> Dict[int, CameraCalibration]:
+        tracer = Tracer(exporter=self.exporter)
+        with tracer.span(name="request") as _span:
+            calib_request = GetCalibrationRequest()
+            calib_request.ids.extend(cameras)
+            request = Message(
+                content=calib_request,
+                reply_to=self.subscription,
+            )
+            request.topic = "CalibrationServer.GetCalibration"
+            request.inject_tracing(_span)
+        self.channel.publish(message=request)
+        self.logger.info("Requesting calibrations, ids={}", cameras)
+        message = self.channel.consume()
         tracer = Tracer(
             exporter=self.exporter,
             span_context=message.extract_tracing(),
@@ -53,7 +44,6 @@ class CalibrationFetcher:
                 reply = message.unpack(GetCalibrationReply)
                 for calibration in reply.calibrations:
                     self.calibrations[calibration.id] = calibration
-                    self.camera_ids.remove(calibration.id)
                     self.logger.info("Updated calibration, id={}".format(calibration.id))
             else:
                 self.logger.warn(

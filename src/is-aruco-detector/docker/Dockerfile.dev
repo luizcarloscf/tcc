@@ -28,4 +28,5 @@ COPY src/is-aruco-detector/ is-aruco-detector/
 WORKDIR /opt/is-aruco-detector/
 RUN set -eux; \
     poetry install; \
-    poetry run pip install --upgrade protobuf==3.20.3        
+    poetry run pip install --upgrade protobuf==3.20.3; \
+    poetry run pip install -I "git+https://github.com/labviros/opencensus-python.git"        

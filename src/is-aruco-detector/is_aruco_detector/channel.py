@@ -6,18 +6,18 @@ from is_wire.core import Channel, Message
 
 
 class CustomChannel(Channel):
-    def __init__(self, uri="amqp://guest:guest@localhost:5672", exchange="is"):
-        super().__init__(uri=uri, exchange=exchange)
+    def __init__(self, zipkin_uri: str, uri="amqp://guest:guest@localhost:5672", exchange="is"):
+        super().__init__(uri=uri, zipkin_uri=zipkin_uri, exchange=exchange)
 
-    def consume_all(self) -> List[Message]:
-        messages = []
-        # waits forever of a message
-        message = super().consume()
-        messages.append(message)
+    def consume_last(self,
+                    return_dropped: bool = True) -> List[Message]:
+        dropped = 0
+        msg = super().consume()
         while True:
             try:
-                # if queue has more than one message, append it to list
-                message = super().consume(timeout=0.0)
-                messages.append(message)
+                # will raise an exceptin when no message remained
+                msg = super().consume(timeout=0.0)
+                dropped += 1
             except socket.timeout:
-                return messages
+                return (msg, dropped) if return_dropped else msg
+

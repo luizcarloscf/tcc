@@ -22,6 +22,9 @@ message ArUcoSettings {
     ArUcoDictionary dictionary = 1;
     // mapping between marker id and length
     map<int64, float> lengths = 2;
+    // cameras
+    repeated int64 cameras = 3;
+
 }
   
 // Models the ArUco service

@@ -39,7 +39,6 @@ def get_zipkin(logger: Logger, uri: str) -> Tuple[str, str]:
 def main():
     service_name = "ArUcoDetector"
     logger = Logger(name="Service", level=logging.DEBUG)
-
     options_filename = sys.argv[1] if len(sys.argv) > 1 else '/etc/is-aruco-detector/options.json'
     options = load_json(logger=logger, path=options_filename)
 
@@ -50,37 +49,29 @@ def main():
         port=zipkin_port,
         transport=AsyncTransport,
     )
-
-    channel = CustomChannel(uri=options.rabbitmq_uri)
+    zipkin_uri_comm = "{}@{}:{}".format(
+        service_name + ".commtime",
+        zipkin_uri,
+        zipkin_port,
+    )
+    channel = CustomChannel(uri=options.rabbitmq_uri, zipkin_uri=zipkin_uri_comm)
     subscription = Subscription(channel=channel, name=service_name)
-
+    fetcher = CalibrationFetcher(
+        channel=channel,
+        subscription=subscription,
+        exporter=exporter,
+    )
+    calibs = fetcher.run(cameras=options.config.cameras)
     detector = ArUcoDetector(
         settings=options.config,
         channel=channel,
         subscription=subscription,
         exporter=exporter,
     )
-    fetcher = CalibrationFetcher(
-        channel=channel,
-        subscription=subscription,
-        exporter=exporter,
-    )
-    calibs = {}
-
     while True:
-        messages = channel.consume_all()
-        images_msgs = messages
-        for message in messages:
-            if message.correlation_id is not None:
-                calibs = fetcher.run(message=message)
-                images_msgs.remove(message)
-        if len(images_msgs) > 0:
-            ok = detector.run(message=images_msgs[-1], calibrations=calibs)
-            logger.info("Dropped messages, num={}".format(len(images_msgs) - 1))
-            if ok is not None:
-                fetcher.find(camera_id=ok)
-        fetcher.check()
-
+        message, dropped = channel.consume_last(return_dropped=True)
+        detector.run(message=message, calibrations=calibs)
+        logger.info("Dropped messages, num={}".format(dropped))
 
 if __name__ == "__main__":
     main()
