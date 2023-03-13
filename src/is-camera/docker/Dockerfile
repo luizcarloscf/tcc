@@ -12,7 +12,8 @@ RUN set -eux; \
         rustc \
         build-essential \
         libssl-dev \
-        cargo; \
+        cargo \
+        git; \
     pip3 install --upgrade poetry; \
     poetry config virtualenvs.in-project true;
 
