@@ -22,7 +22,8 @@ COPY src/is-camera/ is-camera/
 WORKDIR /opt/is-camera/
 RUN set -eux; \
     poetry install --only main; \
-    poetry run pip install --upgrade protobuf==3.20.3
+    poetry run pip install --upgrade protobuf==3.20.3; \
+    poetry run pip install -I "git+https://github.com/labviros/opencensus-python.git"
 
 FROM python:3.10-slim-bullseye as final
 

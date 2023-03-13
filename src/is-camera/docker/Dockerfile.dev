@@ -23,9 +23,10 @@ RUN set -eux; \
     poetry config virtualenvs.in-project true;
 
 WORKDIR /opt/
-COPY src/is-rasp-camera/ is-rasp-camera/
+COPY src/is-camera/ is-camera/
 
-WORKDIR /opt/is-rasp-camera/
+WORKDIR /opt/is-camera
 RUN set -eux; \
     poetry install; \
-    poetry run pip install --upgrade protobuf==3.20.3
+    poetry run pip install --upgrade protobuf==3.20.3; \
+    poetry run pip install -I "git+https://github.com/labviros/opencensus-python.git"
