@@ -1,0 +1,33 @@
+FROM python:3.10-slim-bullseye as build
+
+ENV READTHEDOCS=True
+
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        linux-libc-dev \
+        libc6-dev \
+        libffi-dev \
+        rustc \
+        build-essential \
+        libssl-dev \
+        cargo \
+        git \
+        libsm6 \
+        libxext6 \
+        libglib2.0-0 \
+        libxrender-dev \
+        libgl1-mesa-glx \
+        libturbojpeg0; \
+    pip3 install --upgrade poetry; \
+    poetry config virtualenvs.in-project true;
+
+WORKDIR /opt/
+COPY src/is-robot/ is-robot/
+
+WORKDIR /opt/is-robot
+RUN set -eux; \
+    poetry install; \
+    poetry run pip install --upgrade protobuf==3.20.3; \
+    poetry run pip install -I "git+https://github.com/labviros/opencensus-python.git"
