@@ -30,12 +30,12 @@ class ArUcoDetector:
         self.exporter = exporter
         self.subscription = subscription
         for camera in self.settings.cameras:
-            topic = "CameraGateway.{}.Frame".format(camera)
+            topic = "{}.{}.Frame".format(self.settings.input_service_name, camera)
             self.subscription.subscribe(topic=topic)
             self.logger.info("Subscribed to receive messages with topic '{}'".format(
                 topic
             ))
-        self.re_topic = re.compile(r'CameraGateway.(\d+).Frame')
+        self.re_topic = re.compile(r'{service_name}.(\d+).Frame'.format(service_name=self.settings.input_service_name))
         self.dictionary = cv2.aruco.getPredefinedDictionary(settings.dictionary)
         self.parameters = cv2.aruco.DetectorParameters()
         self.detector = cv2.aruco.ArucoDetector(self.dictionary, self.parameters)
@@ -167,7 +167,7 @@ class ArUcoDetector:
             else:
                 camera_id = int(match.group(1))
                 if camera_id not in calibrations:
-                        return
+                    return
             image = message.unpack(schema=Image)
             annotations = self.detect(image=image)
             transformations = self.localize(

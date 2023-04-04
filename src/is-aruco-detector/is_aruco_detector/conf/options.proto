@@ -18,21 +18,25 @@ enum ArUcoDictionary {
 
 // Models the ArUco detection and localization behavior
 message ArUcoSettings {
+    // RabbitMQ input service name
+    string input_service_name = 1;
     // aruco dictionary
-    ArUcoDictionary dictionary = 1;
+    ArUcoDictionary dictionary = 2;
     // mapping between marker id and length
-    map<int64, float> lengths = 2;
+    map<int64, float> lengths = 3;
     // cameras
-    repeated int64 cameras = 3;
+    repeated int64 cameras = 4;
 
 }
   
 // Models the ArUco service
 message ArUcoDetectorOptions {
+    // service name
+    string service_name = 1;
     // RabbitMQ broker uri
-    string rabbitmq_uri = 1;
+    string rabbitmq_uri = 2;
     // Zipkin uri
-    string zipkin_uri = 2;
+    string zipkin_uri = 3;
     // ArUco configurations
-    ArUcoSettings config = 3;
+    ArUcoSettings config = 4;
 }

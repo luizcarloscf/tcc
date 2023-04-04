@@ -37,25 +37,24 @@ def get_zipkin(logger: Logger, uri: str) -> Tuple[str, str]:
 
 
 def main():
-    service_name = "ArUcoDetector"
     logger = Logger(name="Service", level=logging.DEBUG)
     options_filename = sys.argv[1] if len(sys.argv) > 1 else '/etc/is-aruco-detector/options.json'
     options = load_json(logger=logger, path=options_filename)
 
     zipkin_uri, zipkin_port = get_zipkin(logger=logger, uri=options.zipkin_uri)
     exporter = ZipkinExporter(
-        service_name=service_name,
+        service_name=options.service_name,
         host_name=zipkin_uri,
         port=zipkin_port,
         transport=AsyncTransport,
     )
     zipkin_uri_comm = "{}@{}:{}".format(
-        service_name + ".commtime",
+        options.service_name + ".commtime",
         zipkin_uri,
         zipkin_port,
     )
     channel = CustomChannel(uri=options.rabbitmq_uri, zipkin_uri=zipkin_uri_comm)
-    subscription = Subscription(channel=channel, name=service_name)
+    subscription = Subscription(channel=channel, name=options.service_name)
     fetcher = CalibrationFetcher(
         channel=channel,
         subscription=subscription,
