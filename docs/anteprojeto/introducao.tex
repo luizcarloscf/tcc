@@ -1,0 +1,50 @@
+% Ajustar esse \vspace de acordo com o necessário
+\vspace{-42pt}
+
+\section{Apresentação}
+
+O conceito de Computação Ubíqua, também conhecido por Computação Pervasiva, foi inicialmente proposto por \citeonline{weiser1991computer}. Para ele, a tecnologia do futuro estaria imersa na vida das pessoas, imperceptível. Dessa forma, os usuários se concentrariam na tarefa e não na ferramenta que estão utilizando. Quando proposta, sua ideia foi revolucionária e a frente do seu tempo. Isso, porque a tecnologia de hardware necessária para viabilizar o projeto não existia \cite{satyanarayanan2001pervasive}.
+
+Após décadas de progresso e estudos na área, diversos projetos foram produzidos e, com eles, novos conceitos surgiram, como o conceito de Espaços Inteligentes: um espaço físico equipado com uma rede de sensores, atuadores e serviços computacionais que atuam com o objetivo de atender as necessidades dos usuários presentes no ambiente \cite{carmo2021arquitetura}. \remove{Onde,} O espaço pode ser um ambiente fechado, como uma sala de reuniões ou laboratório, ou um área aberta bem definida, como um pátio ou quadra, ou até mesmo o espaço abrangido por uma cidade. Diversos sensores podem ser utilizados para adquirir informações, tais como câmeras, microfones e sensores de proximidade. Além disso, os serviços computacionais que controlam este ambiente podem atuar diretamente sobre ele, através do uso de telas e alto falantes, ou indiretamente, por meio de \add{atuadores ou dispositivos robóticos como} robôs terrestres ou \add{mesmo} veículos aéreos não tripulados (VANTs).
+
+No \add{Lab VISIO} - Laboratório de Visão Computacional e Robótica do Programa de Pós-Graduação em Engenharia Elétrica (PPGEE) da Universidade Federal do Espírito Santo (UFES) foi desenvolvido um Espaço Inteligente Programável (PIS, do inglês \textit{Programmable Inteligent Space}) baseado em visão computacional, tendo câmeras como principais sensores. Além de ter as características de um Espaço Inteligente, também incorpora uma arquitetura baseada em microsserviços centrada na observabilidade multinível e a programabilidade granular da infraestrutura \cite{carmo2021arquitetura}.
+
+Assim, diversas aplicações foram desenvolvidas e integradas em diversos PIS. Por exemplo, os autores \citeonline{almonfrey2018humandetector} propuseram um detector de pessoas, além de experimentos envolvendo interações humano-robô como prova de conceito da aplicação. Já os autores \citeonline{queiroz2018skeletons3d} propuseram um método para estimativa tridimensional de coordenadas de juntas de esqueletos. Continuando o trabalho desenvolvido por \citeonline{queiroz2018skeletons3d}, os autores \citeonline{custodio2020interacional} propuseram um Ambiente Interacional para o Espaço Inteligente através de esqueletos tridimensionais, bem como uma aplicação para construção de um mapa de ocupação ambiente. No trabalho proposto pelos autores \citeonline{izabel2022mobilysa}, um sistema que integra o processo de localização, controle e navegação de um cão-guia robô (Lysa) para ambientes internos baseado em visão computacional também foi desenvolvido para o PIS. É importante notar que, em todas as aplicações citadas, a abrangência do PIS é limitada pelo campo de visão das câmeras e os dispositivos robóticos não \recom{performam}{realizam} nenhuma tarefa de processamento. \add{E quem realiza? Acho que você deveria dizer aqui.} 
+
+Ao integrar sensores (câmeras, \textit{lasers}, entre outros) em robôs terrestres ou VANTs, a abrangência do PIS poderia ser expandida e não estar limitada pela campo de visão das câmeras fixas no ambiente. Além disso, os próprios dispositivos robóticos poderiam ser utilizados para processamento, quando necessário para atender aos requisitos impostos pelas aplicações.
+
+Nesse sentido, este trabalho propõe integrar dispositivos robóticos, robôs terrestres e VANTs, na plataforma orquestração de contêineres, possibilitando a computação em borda das aplicações e a expansão da abrangência do PIS. Para isso, pretende-se medir o tempo de resposta através da observabilidade multinível disponibilizada pelo PIS e desenvolver um controlador responsável por avaliar onde as aplicações devem ser executadas, ou em nuvem ou em borda, a fim de atender os requisitos das aplicações com utilização racional dos recursos de infraestrutura. Para validação, pretende-se utilizar um detector de marcadores visuais de realidade aumentada, aplicação bastante utilizada no PIS para o controle de robôs terrestres e seguimento de padrão em VANTs por técnicas de visão computacional.
+
+
+\section{Objetivos}
+
+\subsection{Objetivo Geral}
+
+%\begin{itemize}
+
+%\item 
+\add{O objetivo geral deste projeto pode ser definido como a}  expansão de um Espaço Inteligente Programável através de dispositivos robóticos, para computação em borda e extensão da \add{sua} abrangência. 
+
+%\end{itemize}
+
+\subsection{Objetivos Específicos}
+
+\begin{itemize}
+
+\item Estudar o PIS, suas camadas e processo de orquestração;
+\item Estender a plataforma de orquestração de contêineres para os dispositivos robóticos;
+\item Modificar aplicações já desenvolvidas para expor o tempo de resposta total;
+\item Desenvolver um controlador para o PIS responsável por manipular as aplicações de forma atender os requisitos do sistema monitorado;
+\item Testar e validar o controlador através de experimentos realizados no laboratório.
+
+\end{itemize}
+
+\section{Estrutura do Texto}
+O presente trabalho está estruturado da seguinte maneira:
+\begin{itemize}
+\item
+\textbf{Introdução}: o capítulo inicial \recom{tem como objetivo}{visa} apresentar o tema no qual este projeto está inserido e a sua importância, além de definir os objetivos gerais e específicos;
+\item \textbf{Referencial teórico}: neste capítulo o referencial teórico e sustentação científica do trabalho são abordados; 
+\item \textbf{Metodologia}: nesta etapa será definida a metodologia na qual pretende-se desenvolver o estudo, detalhando os materiais e processos envolvidos; 
+\item \textbf{Alocação de recursos}: este capítulo reúne os recursos necessários para que os objetivos do trabalho sejam alcançados.
+\end{itemize}

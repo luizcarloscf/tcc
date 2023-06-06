@@ -1,0 +1,489 @@
+% --------------------------------------------------- %
+%	Modelo para elaboração do Projeto de Graduação	  %		
+%	do curso de Engenharia Elétrica - UFES			  %
+%													  %
+%	Adaptado do modelo de trabalho acadêmico 'abntex2'%
+%	em 27/10/2016									  %
+% --------------------------------------------------- %
+
+\documentclass[
+	% -- opções da classe memoir --
+	12pt,				% tamanho da fonte
+	openright,			% capítulos começam em pág ímpar (insere página vazia caso preciso)
+	oneside,			% para impressão em recto e verso. Oposto a onesidehttps://www.overleaf.com/project/5b904f01df15d27389c3ec99
+	a4paper,			% tamanho do papel. 
+	% -- opções da classe abntex2 --
+	chapter=TITLE,		% títulos de capítulos convertidos em letras maiúsculas
+	%section=TITLE,		% títulos de seções convertidos em letras maiúsculas
+	%subsection=TITLE,	% títulos de subseções convertidos em letras maiúsculas
+	%subsubsection=TITLE,% títulos de subsubseções convertidos em letras maiúsculas
+	% -- opções do pacote babel --
+	english,			% idioma adicional para hifenização
+	french,				% idioma adicional para hifenização
+	spanish,			% idioma adicional para hifenização
+	brazil				% o último idioma é o principal do documento
+	]{abntex2}
+
+% --------------------------------------------------- %
+% 					Pacotes básicos 				  %
+% --------------------------------------------------- %
+%\usepackage{lmodern}			% Usa a fonte Latin Modern			
+\usepackage[T1]{fontenc}		% Selecao de codigos de fonte.
+\usepackage[utf8]{inputenc}		% Codificacao do documento (conversão automática dos acentos)
+\usepackage{lastpage}			% Usado pela Ficha catalográfica
+%\usepackage{indentfirst}		% Indenta o primeiro parágrafo de cada seção.
+\usepackage{color}				% Controle das cores
+%\usepackage{easyreview}         % Controle de revisões (adicionar ou destacar texto)
+\usepackage{graphicx}			% Inclusão de gráficos
+\usepackage[linesnumbered]{algorithm2e} % Formatação de escrita de algoritmos
+\usepackage{microtype} 			% para melhorias de justificação
+\usepackage[table,xcdraw]{xcolor} 
+\usepackage{multirow}			% Para usar a tabela gerada no www.tablesgenerator.com
+\usepackage{lscape}             % serve para inserir página no modo paisagem
+\usepackage{pdflscape}          % serve para inserir página no modo paisagem
+% \usepackage{subfig}
+\usepackage{subfloat}
+\usepackage{subcaption}
+\usepackage{tikz}               % serve para desenhar diretamente no LaTeX
+
+
+% >> Pacotes de citações
+% Pacotes de citações
+% ---
+\usepackage[brazilian,hyperpageref]{backref}	 % Paginas com as citações na bibl
+\usepackage[alf,abnt-etal-list=0,abnt-etal-cite=3]{abntex2cite}	% Citações padrão ABNT
+%\usepackage[num]{abntex2cite}	% Citações padrão ABNT
+% --- 
+\usepackage{pdfpages}
+%------------------------------------------------------------------ 
+%Paquetes para la inclusion de diagramas de Gantt
+\usepackage{pgfgantt}
+
+% >> Configuração dos pacotes de citações
+	% ---
+	% Configurações do pacote backref
+	% Usado sem a opção hyperpageref de backref
+	\renewcommand{\backrefpagesname}{Citado na(s) página(s):~}
+	% Texto padrão antes do número das páginas
+	\renewcommand{\backref}{}
+	% Define os textos da citação
+	\renewcommand*{\backrefalt}[4]{
+		\ifcase #1 %
+			Nenhuma citação no texto.%
+		\or
+			Citado na página #2.%
+		\else
+			Citado #1 vezes nas páginas #2.%
+		\fi}%
+        
+% >> Pacotes de teoremas e definições
+\usepackage{amssymb}	 % qed
+\usepackage{amsthm}      % Teoremas
+\usepackage{thmtools}    % Front end para amsthm (\declaretheorem)
+\declaretheorem[style=definition,name=Definição,parent=chapter,qed=\textemdash]{definicao}
+
+
+% >>> Insere a pasta onde estão contidas as figuras <<<
+\graphicspath{{images/}}
+
+% --------------------------------------------------- %
+%		Redefinição e criação de comandos 			  %
+% --------------------------------------------------- %
+\usepackage{url} %Incluir ulrs
+\usepackage{xcolor} %para colorir texto
+\usepackage{amsmath} %para usar \eqref{}
+\usepackage{ulem} %tachar texto (comando \sout{}})
+\usepackage{amsfonts} %adicionar NumberSets 
+
+% >>> Comandos para aspas simples e duplas
+\newcommand{\ASPASIMPLE}[1]{`#1'} %ASPAS SIMPLES
+\newcommand{\ASPADUPLA}[1]{``#1''} %ASPAS DOBLES
+
+\usepackage{soul} % para tachar palabras
+\newcommand{\warning}[1]{\textcolor{magenta}{#1}}
+\newcommand{\add}[1]{\textcolor{blue}{#1}}
+\newcommand{\review}[1]{\textcolor{green}{#1}}
+\newcommand{\remove}[1]{\textcolor{red}{\st{#1}}}
+\newcommand{\passive}[1]{\textcolor{\textbf{yellow}}{\st{#1}}}
+\newcommand{\wordchoice}[1]{\textcolor{\textbf{yellow}}{\st{#1}}}
+\newcommand{\recom}[2]{\remove{#1} \add{#2}}
+% >>> Comando para colorear texto
+\newcommand{\txr}[1]{\textcolor{red}{\textbf{#1}}}
+\newcommand{\txg}[1]{\textcolor{green}{\textbf{#1}}}
+\newcommand{\txb}[1]{\textcolor{blue}{\textbf{#1}}}
+\newcommand{\txk}[1]{\textbf{\textbf{#1}}}
+
+% >>> Comando para vetores
+\newcommand{\mat}[1]{\mbox{\boldmath{$#1$}}}
+\newcommand{\aaa}{\textbf{a}}
+\newcommand{\oo}{\textbf{o}}
+\newcommand{\ww}{\textbf{w}}
+\newcommand{\xx}{\textbf{x}}
+\newcommand{\yy}{\textbf{y}}
+\newcommand{\zz}{\textbf{z}}
+\newcommand{\THETA}{\mat{\theta}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%variavel que permite trocar entre o modelo de PG (para PG 1) e TCC (para PG 2)
+%por default esta em PG
+\newif\ifisTipoDocumento
+\newif\ifisFolhaAprovacao
+\isTipoDocumentotrue %PG (descomentar em caso de PG 1)
+%\isTipoDocumentofalse %TCC (descomentar em caso de PG 2)
+%\isFolhaAprovacaotrue %TCC (PG 2) finalizado
+%\isFolhaAprovacaofalse %TCC (PG 2) não finalizado
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% >>> Mudar tamanho da fonte dos capítulos <<<
+\renewcommand*{\chapnumfont}{\normalfont\large\bfseries\sffamily}
+\renewcommand*{\chaptitlefont}{\normalfont\large\bfseries\sffamily}
+
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\normalsize\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries}{\thesubsection}{1em}{}
+
+% >>> Mudar tamanho da fonte das legendas <<<
+\usepackage[font=footnotesize]{caption}
+
+% >>> Definição do tipo CRONOGRAMA <<<
+% e.g.:
+% \begin{cronograma}[!h]
+% 		Insira o cronograma aqui! (tabela)
+% \eng{cronograma}
+\newcommand{\cronogramaname}{Cronograma}
+\newcommand{\listofcronogramasname}{Lista de Cronogramas}
+
+\newfloat[chapter]{cronograma}{loc}{\cronogramaname}
+\newlistof{listofcronogramas}{loc}{\listofcronogramasname}
+\newlistentry{cronograma}{loc}{0}
+
+\counterwithout{cronograma}{chapter}
+\renewcommand{\cftcronogramaname}{\cronogramaname\space} 
+\renewcommand*{\cftcronogramaaftersnum}{\hfill--\hfill}
+
+% >>> Definição do tipo QUADRO <<<
+% e.g.:
+% \begin{quadro}[!h]
+%  Insira aqui o quadro (tabela)
+% \end{quadro} 
+\newcommand{\quadroname}{Quadro}
+\newcommand{\listofquadrosname}{Lista de Quadros}
+
+\newfloat[chapter]{quadro}{loq}{\quadroname}
+\newlistof{listofquadros}{loq}{\listofquadrosname}
+\newlistentry{quadro}{loq}{0}
+
+\counterwithout{quadro}{chapter}
+\renewcommand{\cftquadroname}{\quadroname\space} 
+\renewcommand*{\cftquadroaftersnum}{\hfill--\hfill}
+
+% >>> Comando para inserir a fonte em figuras <<<
+% e.g.:
+% \begin{figure}[!h]
+%	\centering
+%	\caption{Legenda da Figura.}
+%	\includegraphics[width=0.7\textwidth]{figura.jpg}
+%	\source[\citeonline{Referencia}.]
+%	\label{fig:label_da_figura}
+%  \end{figure}
+%  
+% Obs.: Se utilizar apenas "\source", será inserido
+%       "Produção do próprio autor."
+
+\newcommand{\source}[1][Produção do próprio autor.]{\begin{flushleft}\footnotesize Fonte: #1\end{flushleft}}
+
+% --------------------------------------------------- %
+%		    Dados do autor/banca/data	      	  	  %	
+% --------------------------------------------------- %
+\newcommand{\TituloDoTCC}{\uppercase{Uma proposta de expansão de um Espaço Inteligente Programável através de dispositivos robóticos e computação em borda}}
+\newcommand{\NomeDeAutor}{Luiz Carlos Cosmi Filho}
+\newcommand{\NomeOrientador}{Profa. Dra. Raquel Frizera Vassallo}
+\newcommand{\NomeCoorientador}{Prof. Dr. Alexandre Pereira do Carmo}
+\newcommand{\DataApresentacao}{Dezembro/2023}
+
+% --------------------------------------------------- %
+%		Informações para personalização da capa		  %
+% --------------------------------------------------- %
+\newcommand{\universidade}{Universidade Federal do Espírito Santo}
+\newcommand{\centro}{Centro Tecnológico}
+\newcommand{\departamento}{Departamento de Engenharia Elétrica}
+\newcommand{\disciplina}{Projeto de Graduação}
+\newcommand{\imprimirINSTITUICAO}{
+	\MakeUppercase{\universidade} \\
+	\MakeUppercase{\centro} \\
+	\MakeUppercase{\departamento} \\
+	\MakeUppercase{\disciplina} \\
+}
+% --------------------------------------------------- %
+%		Informações para capa e folha de rosto		  %
+% --------------------------------------------------- %
+\titulo{\TituloDoTCC}
+\autor{\NomeDeAutor}
+\local{Vitória-ES}
+\data{\DataApresentacao}
+\orientador{\NomeOrientador}
+\coorientador{\NomeCoorientador}
+\instituicao{%
+	\universidade
+  	\par
+	\centro
+  	\par
+	\departamento
+	\par
+	\disciplina
+	\par}
+\tipotrabalho{Projeto de Graduação}
+% O preambulo deve conter o tipo do trabalho, o objetivo, 
+% o nome da instituição e a área de concentração 
+\preambulo{Parte manuscrita do Projeto de Graduação do aluno \NomeDeAutor, apresentado ao Departamento de Engenharia Elétrica do Centro Tecnológico da Universidade Federal do Espírito Santo, como requisito parcial para obtenção do grau de Engenheiro Eletricista.}
+
+% --------------------------------------------------- %
+%		Configurações do aspecto final do PDF		  %
+% --------------------------------------------------- %
+% >> Alterando o aspecto da cor azul
+\definecolor{blue}{RGB}{41,5,195}
+% Informações do PDF
+\makeatletter
+\hypersetup{
+     	%pagebackref=true,
+		pdftitle={\@title}, 
+		pdfauthor={\@author},
+    	pdfsubject={\imprimirpreambulo},
+	    pdfcreator={LaTeX with abnTeX2},
+		pdfkeywords={abnt}{latex}{abntex}{abntex2}{trabalho acadêmico}, 
+		colorlinks=true,       		% false: boxed links; true: colored links
+    	linkcolor=black,          	% color of internal links
+    	citecolor=black,        		% color of links to bibliography
+    	filecolor=magenta,      		% color of file links
+		urlcolor=black,
+		bookmarksdepth=4
+}
+\makeatother
+
+% --------------------------------------------------- %
+%		Espaçamentos entre linhas e parágrafos 		  %
+% --------------------------------------------------- %
+% >> O tamanho do parágrafo é dado por:
+\setlength{\parindent}{0cm}
+% >> Controle do espaçamento entre um parágrafo e outro:
+\setlength{\parskip}{18pt}
+
+% --------------------------------------------------- %
+%				Compila o Índice 					  %
+% --------------------------------------------------- %
+\makeindex
+
+% --------------------------------------------------- %
+%				Início do Documento					  %
+% --------------------------------------------------- %
+
+\begin{document}
+
+% >>> Seleciona o idioma do documento (conforme pacotes do babel)
+% \selectlanguage{english}
+\selectlanguage{brazil}
+
+% >>> Retira espaço extra obsoleto entre as frases.
+\frenchspacing 
+
+% --------------------------------------------------- %
+%				Elementos Pré-Textuais				  %
+% --------------------------------------------------- %
+% \pretextual
+
+%%%%%%%%
+\ifisTipoDocumento
+\input{pretextual_pg}
+\else
+\input{pretextual_tcc}
+\fi
+%%%%%%%
+ 
+% --------------------------------------------------- %
+%					Lista de Figuras	      	  	  %	
+% --------------------------------------------------- %
+\renewcommand{\listfigurename}{Lista de Figuras}
+\listoffigures*
+\cleardoublepage
+
+% --------------------------------------------------- %
+%					Lista de Tabelas				  %	
+% --------------------------------------------------- %
+
+\pdfbookmark[0]{\listtablename}{lot}
+\listoftables*
+\cleardoublepage
+
+% --------------------------------------------------- %
+%					Lista de Quadros				  %	
+% --------------------------------------------------- %
+
+%\pdfbookmark[0]{\listofquadrosname}{loq}
+%\listofquadros*
+%\cleardoublepage
+
+% --------------------------------------------------- %
+%			Lista de Abreviaturas e Siglas			  %	
+% --------------------------------------------------- %
+\begin{siglas}
+%%%%%%%%%%%%%  A %%%%%%%%%%%%%%%
+\item[AMQP] \textit{Advanced Message Queuing Protocol}
+\item[API] \textit{Application Programmable Interface}
+%%%%%%%%%%%%%  B %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  C %%%%%%%%%%%%%%%
+\item[CPU] \textit{Central Processing Unit}
+%%%%%%%%%%%%%  D %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  E %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  F %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  G %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  H %%%%%%%%%%%%%%%
+\item[HTTP] \textit{Hypertext Transfer Protocol}
+%%%%%%%%%%%%%  I %%%%%%%%%%%%%%%
+\item[IaaS] \textit{Infrastructure as a Service}
+\item[IoT] \textit{Internet of Things}
+%%%%%%%%%%%%%  J %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  K %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  L %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  M %%%%%%%%%%%%%%%
+\item[MSA] \textit{Microservice Architecture}
+%%%%%%%%%%%%%  N %%%%%%%%%%%%%%%
+% \item[NTP] \textit{Network Time Protocol}
+%%%%%%%%%%%%%  O %%%%%%%%%%%%%%%
+\item[OSI] \textit{Open System Interconnection}
+%%%%%%%%%%%%%  P %%%%%%%%%%%%%%%
+\item[PaaS] \textit{Platform as a Service}
+\item[PIS] \textit{Programmable Intelligent Space}
+\item[PPGEE] Programa de Pós-Graduação em Engenharia Elétrica
+
+%%%%%%%%%%%%%  Q %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  R %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  S %%%%%%%%%%%%%%%
+\item[SaaS] \textit{Software as a Service}
+\item[SO] Sistema Operacional
+%%%%%%%%%%%%%  T %%%%%%%%%%%%%%%
+% \item [TCP] \textit{Transmission Control Protocol}
+%%%%%%%%%%%%%  U %%%%%%%%%%%%%%%
+\item[UFES] Universidade Federal do Espírito Santo
+%%%%%%%%%%%%%  V %%%%%%%%%%%%%%%
+\item[VANT] Veículo Aéreo Não Tripulado
+%%%%%%%%%%%%%  W %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  Y %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%  Z %%%%%%%%%%%%%%%
+\end{siglas}
+
+% --------------------------------------------------- %
+%					Lista de Símbolos				  %	
+% --------------------------------------------------- %
+
+%\begin{simbolos}
+%	\item[]
+%\end{simbolos}
+
+% --------------------------------------------------- %
+%						Sumário						  %	
+% --------------------------------------------------- %
+
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+
+% --------------------------------------------------- %
+%					Elementos Textuais				  %
+% --------------------------------------------------- %
+
+\textual
+
+\chapter[Introdução]{Introdução}
+\input{introducao.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter[Referencial Teórico]{Referencial Teórico}
+\input{referencial.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifisTipoDocumento
+\chapter[Metodologia e etapas de desenvolvimento]{Metodologia e etapas de desenvolvimento}
+% escrever um textinho falando o que vem a seguir nas próximas subseções
+\input{metodologia.tex}
+\else
+\chapter[Proposta]{Proposta}
+\input{proposta.tex}
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifisTipoDocumento
+\chapter[Alocação de Recursos]{Alocação de Recursos}
+\input{recursos.tex}
+\else
+\chapter[Resultados]{Resultados}
+\input{resultados.tex}
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifisTipoDocumento
+\else
+\chapter[Conclusão e Trabalhos Futuros]{Conclusão e Trabalhos Futuros}
+\input{conclusao.tex}
+\fi
+
+% --------------------------------------------------- %
+%				Elementos Pós-Textuais				  %
+% --------------------------------------------------- %
+
+\postextual
+
+% --------------------------------------------------- %
+%				Referências Bibliográficas		      %
+% --------------------------------------------------- %
+
+\bibliography{bibliografia}
+
+% --------------------------------------------------- %
+%						Apêndices				  	  %
+% --------------------------------------------------- %
+
+%\begin{apendicesenv}
+% Imprime uma página indicando o início dos apêndices
+%\partapendices
+% Insira os apêndices aqui em forma de capítulos
+%\end{apendicesenv}
+
+% --------------------------------------------------- %
+%						Anexos						  %
+% --------------------------------------------------- %
+
+% \begin{anexosenv}
+%
+%% Imprime uma página indicando o início dos anexos
+% \partanexos
+% \input{ANEXO_DicasEscrita.tex}
+% \input{ANEXO_ComoReferenciar.tex}
+% \input{ANEXO_MetodologiaDeepModels.tex}
+% \end{anexosenv}
+
+% --------------------------------------------------- %
+%					Índice Remissivo				  %
+% --------------------------------------------------- %
+\phantompart
+\printindex
+
+\end{document}

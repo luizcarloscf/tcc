@@ -1,0 +1,256 @@
+{\txr{COMENTARIO GERAL}} Neste capítulo deverão ser descritos os recursos usados para a realização do projeto (equipamentos, material bibliográfico, programas de simulação, etc.), bem como aspectos relativos à disponibilidade ou não dos mesmos para a realização do estudo. Caso a disponibilidade de algum recurso seja limitada, ou esteja vinculada a alguma data de entrega, fator externo ou, até mesmo, a outro projeto, tal informação deve ser apresentada de forma explícita e clara nesta seção. O atraso ou a indisponibilidade deste recurso afetará diretamente o cronograma de execução do projeto, fato que deve ser cuidadosamente avaliado na construção do cronograma.
+
+\section{Introdução}
+
+\textbf{1. \txr{Objetivo do capitulo}}
+Neste capítulo serão apresentados os resultados obtidos.....
+\textbf{2. \txr{Temas a tratar}}
+De tal modo, o capitulo inicia descrevendo o banco de dados utilizado para treinamento e teste das abordagens propostas, 
+também são apresentados todos os resultados obtidos em diferentes etapas do processo, mostrando a evolução obtida a partir da implementação de algumas técnicas apresentadas anteriormente. 
+E por fim, é feita uma análise destes resultados e uma comparação com os resultados obtidos por outros trabalhos semelhantes com o intuito de validar as abordagens propostas.
+
+
+%\textbf{3. \txr{Descrição de algumas peculiaridades da implementação}}
+% Como a capacidade da memória RAM não era suficiente para suportar a banco de dados por completo, durante a etapa de treinamento a taxa de \textit{Swap} entre a memória e o disco rígido aumentava drasticamente. 
+% Com isso, uma vez que a unidade de armazenamento não era de estado sólido, o tempo de carga do próximo \textit{batch} a ser treinado era considerado grande se comparado com a rapidez a qual a GPU o processava.  Provocando uma ociosidade da mesma devido a essa espera. 
+% Sendo assim, foi realizado um processo de pré-carga dos dados utilizando as bibliotecas próprias do \textit{Tensorflow}. Para isso, todas as imagens do conjunto de treino foram serializadas em um único arquivo com extensão \textit{tfrecords}, utilizando o protocolo de serialização \textit{Protobuf}\footnote{ https://github.com/google/protobuf}. Dessa forma, 7 \textit{threads} ficaram responsáveis por carregar imagens em um \textit{buffer} de tamanho pré-definido, enquanto que, paralelamente, a rede estava sendo treinada na GPU. Com o uso desse procedimento, a média de tempo de ociosidade da GPU caiu de cerca de $40\%$ para menos de $10\%$, o que possibilitou acelerar ainda mais o treinamento. 
+
+% \textbf{4. \txr{Descrição dos valores dos hiperparâmetros da rede}}
+% A seguir, são apresentados os valores dos hiperparâmetros usados para a rede CNN e o algoritmo \textit{graph cut}.
+% \noindent \textit{Em relação à CNN:} a taxa de aprendizado usada tem valor $0.01$, com decaimento exponencial de $0.95$. 
+% A camada totalmente conectada tem seus pesos regularizados usando norma L2.
+% A busca por esses parâmetros foi empírica.
+% \noindent \textit{Em relação ao algoritmo \textit{graphcut}:} considerando que são dois parâmetros $\lambda$ e $\sigma$ a serem estimados, a busca do valor desses parâmetros foi feita usando busca exaustiva. Os valores de $\sigma$ e $\lambda$ usados são: $\sigma \in \left \{ 1,15,30,45,50 \right \}$ e $\lambda \in \left \{ 1,25,50,75,100 \right \}$. 
+% Para cada valor de $\sigma$ e $\lambda$ usados, foram calculadas as métricas.
+
+\section{Recursos Computacionais}
+
+\textbf{Recursos de \textit{Software}}
+\input{Software}
+
+\textbf{Recursos de \textit{Hardware}}
+\input{Hardware}
+
+\textbf{Base de dados xxxx.}
+\input{DataBase}
+
+\section{Experimentos}
+\subsection{Métricas}
+
+\textbf{1. \txr{Aqui as métricas usadas para a avaliação da proposta devem ser descritas}}
+Considerando que a segmentação a nível de pixels foi modelado como um problema de classificação binária, a avaliação aqui utilizada será feita via as seguintes métricas: 
+(\textit{i}) acurácia ($Ac$), que avalia a capacidade da técnica de classificar corretamente os pixels como objeto ou fundo; 
+(\textit{ii}) sensibilidade ($Se$), que avalia a capacidade da técnica em classificar corretamente os pixels como objeto; 
+(\textit{iii}) Precisão ($Pr$), que avalia a capacidade da técnica em classificar corretamente as; 
+e finalmente a medida $F$ que é a média harmônica entre a sensibilidade e especificidade. As relações que definem essas métricas são apresentadas nas Equações \eqref{eq:ac} – \eqref{eq:f1}, onde: 
+$VP$ são os verdadeiros positivos (número de pixels corretamente classificados pela técnica como objeto), 
+$VN$ são os verdadeiros negativos (número de pixels corretamente classificados pela técnica como fundo), 
+$FP$ são os falsos positivos (número de pixels classificados erroneamente pela técnica como objeto), e 
+$FN$ são falsos negativos (número de pixels classificados erroneamente pela técnica como fundo). 
+\begin{eqnarray}
+\label{eq:ac}
+Ac &=& \frac{VP + VN}{VP + VN + FP + FN}\\
+\label{eq:se}
+Se &=& \frac{VP}{VP + FN}\\
+\label{eq:es}
+Pr &=& \frac{VP}{VP + FP}\\
+\label{eq:f1}
+F_1 &=& 2\frac{Se.Pr}{Se + Pr}.
+\end{eqnarray}
+
+\subsubsection{Avaliação na XXXX}
+
+\textbf{1. \txr{Aqui devem ser descritos os experimentos implementados e os resultados obtidos em função das métricas de desempenho definidas na seção anterior}}
+Na Tabela \ref{resultados_simplificados} é possível visualizar os resultados obtidos na classificação dos ROIs extraídos manualmente em normais ou cancerígenos. A abordagem atinge uma acurácia de $99,41\%$. 
+Também é possível observar uma grande evolução nos resultados ao se acrescentar o \textit{highboost} na etapa de pré-processamento das imagens que possui a capacidade de destacar as bordas que são características relevantes para esta aplicação. 
+Além disso, a aplicação do \textit{data augmentation} conseguiu melhorar ainda mais os resultados, chegando-se a resultados finais bons se comparados à outros trabalhos semelhantes, como é possível observar na tabela \ref{comparacao_resultados_simplificada}.
+
+\begin{table}[h]
+\centering
+\caption{Resultados para a abordagem semi-automática, na classificação dos ROIs em normais ou cancerígenos.}
+\begin{tabular}{l|ccc}
+Metodologia & $Ac$(\%) & $Se$(\%) & $Es$(\%)\\ 
+\hline                         
+\hline                         
+Simplificada & 92,94 & 87,00 & 96,56 \\
+Simplificada + \textit{Highboost} & 97,06 & 97,03 & 97,23 \\ 
+Simplificada + \textit{Highboost} + \textit{Data augmentation} & 99,41 & 98,57 & 100 \\
+\end{tabular}
+\label{resultados_simplificados}
+\end{table}
+
+\subsubsection{Comparação de resultados}
+
+\textbf{2. \txr{Depois é feita a comparação com outros resultados da literatura}}
+
+Para obter uma noção da qualidade dos classificadores treinados, eles foram comparados com as submissões ao desafio ISIC 2017. 
+Apenas o classificador sobre o módulo $9$ é usado para comparação em cada tarefa. 
+O desempenho dos classificadores é medido por meio da ROC AUC.
+Os classificadores obtidos nesse trabalho tiveram um desempenho como dado na Tabela~\ref{tab:ranking-meu}.
+
+\begin{table}[htb]
+\IBGEtab{%
+\caption{Valores obtidos para comparação no ranking.}%
+\label{tab:ranking-meu}
+}{%
+	\begin{tabular}{cccc}
+	\toprule
+\textbf{fonte} & \textbf{Melanoma} & \textbf{Ceratose Seborréica} 	& \textbf{Média} \\
+\midrule \midrule
+\textit{TensorFlow}		& $0.862$	& $0.912$ & $0.887$\\
+\textit{scikit-learn}	& $0.813$	& $0.877$ & $0.845$\\
+\bottomrule
+\end{tabular}%
+}{
+\fonte{Produção do próprio autor}
+}
+\end{table}
+
+No total, foram $23$ equipes para cada uma das tarefas. 
+São dadas três tabelas de classificação com os $10$ primeiros colocados de cada tarefa:
+
+\begin{itemize}
+\item Classificação de melanoma (Tabela~\ref{tab:ranking-mela})
+\item Classificação de ceratose seborréica (Tabela~\ref{tab:ranking-kera})
+\item Classificação geral (Tabela~\ref{tab:ranking})
+\end{itemize}
+
+A classificação geral é medida pela média simples dos valores de ROC AUC para cada uma das tarefas específicas.
+
+\begin{table}[htb]
+\IBGEtab{%
+\caption{\textit{Ranking} para o problema de \textbf{classificação de melanoma} do desafio ISIC 2017.}%
+\label{tab:ranking-mela}
+}{%
+	\begin{tabular}{ccc}
+	\toprule
+\textbf{Posição} & \textbf{Equipe} 	& \textbf{desempenho} \\
+\midrule \midrule
+1	& RECOD Titans \cite{Menegola2017}			& $0.874$ \\
+2	& Lei Bi \cite{Bi2017}						& $0.870$ \\
+3	& Kazuhisa Matsunaga \cite{Matsunaga2017}	& $0.868$ \\
+4	& monty python \cite{Gonzalez2017}			& $0.856$ \\
+5	& T D 										& $0.836$ \\
+6	& Xulei Yang 								& $0.830$ \\
+7	& Rafael Souza 								& $0.805$ \\
+8	& x j 										& $0.804$ \\
+9	& Cristina Vasconcelos						& $0.791$ \\
+10	& CV 										& $0.789$ \\
+\bottomrule
+\end{tabular}%
+}{
+\fonte{Produção do próprio autor}
+}
+\end{table}
+
+\begin{table}[htb]
+\IBGEtab{%
+\caption{\textit{Ranking}  para o problema de \textbf{classificação de ceratose seborréica} do desafio ISIC 2017.}%
+\label{tab:ranking-kera}
+}{%
+	\begin{tabular}{ccc}
+	\toprule
+\textbf{Posição} & \textbf{Equipe} 	& \textbf{desempenho} \\
+\midrule \midrule
+1	& monty python \cite{Gonzalez2017}			& $0.965$ \\
+2	& Kazuhisa Matsunaga \cite{Matsunaga2017}	& $0.953$ \\
+3	& RECOD Titans \cite{Menegola2017}			& $0.943$ \\
+4	& Xulei Yang 			& $0.942$ \\
+5	& T D 					& $0.935$ \\
+6	& Lei Bi \cite{Bi2017}						& $0.921$ \\
+7	& CV 					& $0.911$ \\
+8	& Cristina Vasconcelos	& $0.911$ \\
+9	& Masih Mahbod 			& $0.908$ \\
+10	& Dylan Shen			& $0.886$ \\
+\bottomrule
+\end{tabular}%
+}{
+\fonte{Produção do próprio autor}
+}
+\end{table}
+
+\begin{table}[htb]
+\IBGEtab{%
+\caption{\textit{Ranking} geral do desafio ISIC 2017.}%
+\label{tab:ranking}
+}{%
+	\begin{tabular}{ccc}
+	\toprule
+\textbf{Posição} & \textbf{Equipe} 	& \textbf{desempenho} \\
+\midrule \midrule
+1	& Kazuhisa Matsunaga \cite{Matsunaga2017}	& $0.911$ \\
+2	& monty python \cite{Gonzalez2017}			& $0.910$ \\
+3	& RECOD Titans \cite{Menegola2017}			& $0.908$ \\
+4	& popleyi .	\cite{Bi2017}					& $0.896$ \\
+5	& Xulei Yang 			& $0.886$ \\
+6	& T D 					& $0.886$ \\
+7	& Cristina Vasconcelos	& $0.851$ \\
+8	& Cristina Vasconcelos	& $0.850$ \\
+9	& Euijoon Ahn 			& $0.836$ \\
+10	& x j 					& $0.829$ \\
+\bottomrule
+\end{tabular}%
+}{
+\fonte{Produção do próprio autor}
+}
+\end{table}
+
+Comparando os desempenhos obtidos com os dos participantes do desafio, a classificação que teria sido obtida caso fosse possível participar do desafio está dada na Tabela~\ref{tab:colocacao}. 
+
+\begin{table}[htb]
+\IBGEtab{%
+\caption{Classificação hipotética no desafio.}%
+\label{tab:colocacao}
+}{%
+	\begin{tabular}{cccc}
+	\toprule
+\textbf{fonte} & \textbf{Melanoma} & \textbf{Ceratose Seborréica} 	& \textbf{Média} \\
+\midrule \midrule
+\textit{TensorFlow}		& $4$	& $7$ 	& $5$ \\
+\textit{scikit-learn}	& $7$	& $13$ 	& $9$ \\
+\bottomrule
+\end{tabular}%
+}{
+\fonte{Produção do próprio autor}
+}
+\end{table}
+
+Uma breve descrição dos métodos usados pelos 4 primeiros colocados no \textit{ranking} geral permite uma comparação ao método deste trabalho. Estes são os trabalhos que obtiveram um resultado geral superior ao deste trabalho, se considerada o valor de ROC AUC provido pelo \textit{TensorFlow}. São eles:
+\begin{enumerate}
+\item \textbf{\textit{Image Classification of Melanoma, Nevus and Seborrheic Keratosis 
+by Deep Neural Network Ensemble}} \cite{Matsunaga2017} Primeiro colocado geral, terceiro para melanoma e segundo para ceratose seborréica. Fizeram uso de:
+\begin{itemize}
+\item pré-processamento: normalização da iluminância e da cor;
+\item arquitetura do classificador: \textit{ResNet-50}
+\item treino: \textit{transfer learning} com ajuste fino dos pesos;
+\item dados externos: 1444 imagens;
+\item \textit{data augmentation}: rotação, translação, mudança de escala e espelhamento;
+\item avaliação: \textit{ensemble}
+\end{itemize}
+
+\item \textbf{\textit{ Incorporating the Knowledge of Dermatologists to Convolutional Neural Networks for the Diagnosis of Skin Lesions}} \cite{Gonzalez2017} Segundo colocado geral, quarto para melanoma e primeiro para ceratose seborréica. Fez uso de:
+\begin{itemize}
+\item segmentação: usa uma rede VGG para fazer uma segmentação da lesão;
+\item anotações externas: anotações adicionais foram feitas por um conjunto de médicos sobre a presença de indicadores tradicionais de lesões e a partir delas foi feito um extrator para essa características com uma rede VGG;
+\item arquitetura do classificador: \textit{ResNet-50};
+\item treino: \textit{transfer learning};
+\item dados externos: dataset de treino do ISIC 2016 e as anotações;
+\item \textit{data augmentation}: rotação e mudança de escala;
+\item avaliação: \textit{ensemble} do classificador normal com um classificador para as características e um para as imagens em coordenadas polares.
+\end{itemize}
+\end{enumerate}
+
+Vale notar que dentre estes listados estão os três vencedores (melanoma, ceratose e geral) e que todos os listados fizeram uso de \textit{ensembles} de classificadores, \textit{transfer learning}, \textit{data augmentation}, além de usar mais imagens para treino do que provido pelo desafio \cite{Codella2017}. 
+
+Enquanto a técnica de \textit{ensembles} é fácil de implementar, a tarefa de coletar e rotular mais imagens para treino é algo muito trabalhoso e requer um tempo considerável. 
+Embora o uso de imagens externas seja permitido pelo desafio, não mede o desempenho da arquitetura em si, e qualquer participante que tivesse acesso a esse banco de dados aumentado teria visto ganhos no desempenho de seu classificador.
+
+O uso de \textit{data augmentation} foi semelhante ao deste trabalho, com alguns destes realizando mais e outros ligeiramente menos variações. 
+
+No entanto, uma escolha notável e comum a todos os exemplos acima listados foi o uso de \textit{transfer learning} com ajuste fino dos pesos. Isso acarretou num menor tempo de treino reportado entre os trabalhos listados de 12 horas em duas GPUs de ponta (Nvidia Titan X).
+
+Neste trabalho, ao não fazer o ajuste fino, foi possível fazer uso da técnica dos \textit{bottlenecks} e assim possibilitar um tempo de treino centenas de vezes menor, sem considerar a diferença de poder de processamento. Tudo isso sem acarretar em grandes diminuições do desempenho do classificador obtido. Outro apecto de \textit{transfer learning} do qual não foi lançado mão pelos trabalhos listados foi o de não usar as camadas superiores. Isso tende a melhorar o desempenho e é um trabalho relativamente fácil. Vale ressaltar novamente que neste trabalho não foram usadas imagens externas ao \textit{dataset} do desafio e ainda assim em alguns casos foi obtido um desempenho próximo, com um tempo de treino muito menor.
+
+\section{Resumo}
+
+\txr{Neste capitulo ................}
