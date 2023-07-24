@@ -1,0 +1,23 @@
+apiVersion: labvisio.ufes.br/v1
+kind: IsController
+metadata:
+  name: test-controller
+spec:
+  cloud:
+    deployment:
+      name: is-test-detector
+      namespace: default
+      apiVersion: apps/v1
+    rabbitmq_uri: "amqp://guest:guest@rabbitmq.default"
+  edge:
+    deployment:
+      name: is-test-detector
+      namespace: edge
+      apiVersion: apps/v1
+    rabbitmq_uri: "amqp://guest:guest@rabbitmq.edge"
+  spans:
+  - name: test
+    service: cameragateway
+  - name: test
+    service: aruco.localization
+  
