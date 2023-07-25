@@ -10,7 +10,7 @@ data:
   options: |-
     {
       "rabbitmq_uri" : "amqp://guest:guest@rabbitmq.edge:5672",
-      "zipkin_uri" : "http://zipkin.default:9411",
+      "zipkin_uri" : "http://zipkin.edge:9411",
       "config": {
         "cameras": [0],
         "arucos": [0],
