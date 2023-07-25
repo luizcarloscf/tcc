@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: is-aruco-detector
+  namespace: edge
+spec:
+  selector:
+    matchLabels:
+      app: is-aruco-detector
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: is-aruco-detector
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+      containers:
+      - name: is-aruco-detector
+        image: luizcarloscf/is-aruco-detector:0.3.1
+        command: ["is-aruco-detector", "/etc/is-aruco-detector/options.json"]
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "1500m"
+            memory: "1024Mi"
+          requests:
+            cpu: "1000m"
+            memory: "512Mi"
+        volumeMounts:
+          - name: options
+            mountPath: /etc/is-aruco-detector/
+      volumes:
+      - name: options
+        configMap:
+          name: is-aruco-detector
+          items:
+          - key: options
+            path: options.json
