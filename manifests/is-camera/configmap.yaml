@@ -10,7 +10,7 @@ data:
   options: |-
     {
       "rabbitmq_uri" : "amqp://guest:guest@rabbitmq.edge:5672",
-      "zipkin_uri": "http://zipkin.default:9411",
+      "zipkin_uri": "http://zipkin.edge:9411",
       "camera": {
           "id": 0,
           "device": "/dev/video0",
@@ -33,8 +33,8 @@ data:
       },
       "image": {
         "resolution": {
-            "width": 1280,
-            "height": 720
+            "width": 854,
+            "height": 480
         },
         "format": {
             "format": "JPEG",
