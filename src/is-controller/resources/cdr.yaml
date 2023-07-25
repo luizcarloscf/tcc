@@ -39,11 +39,8 @@ spec:
                       - name
                       - namespace
                       - apiVersion
-                    rabbitmq_uri:
-                      type: string
                   required:
                   - deployment
-                  - rabbitmq_uri
                 edge:
                   type: object
                   properties:
@@ -60,11 +57,8 @@ spec:
                       - name
                       - namespace
                       - apiVersion
-                    rabbitmq_uri:
-                      type: string
                   required:
                   - deployment
-                  - rabbitmq_uri
                 spans:
                   type: array
                   items:
@@ -77,9 +71,30 @@ spec:
                     required:
                     - name
                     - service
+                tracesTargetValue:
+                  type: number
+                connections:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      src:
+                        type: string
+                      dest:
+                        type: string
+                      topic:
+                        type: string
+                    required:
+                    - name
+                    - src
+                    - dest
+                    - topic
               required:
               - edge
               - cloud
               - spans
+              - tracesTargetValue
           required:
           - spec

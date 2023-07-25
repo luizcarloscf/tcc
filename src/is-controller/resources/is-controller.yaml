@@ -8,16 +8,23 @@ spec:
       name: is-aruco-detector
       namespace: default
       apiVersion: apps/v1
-    rabbitmq_uri: "amqp://guest:guest@rabbitmq.default"
   edge:
     deployment:
       name: is-aruco-detector
       namespace: edge
       apiVersion: apps/v1
-    rabbitmq_uri: "amqp://guest:guest@rabbitmq.edge"
   spans:
   - name: frame
     service: cameragateway
   - name: localization
     service: aruco.localization
-  
+  tracesTargetValue: 12
+  connections:
+  - name: images
+    src: edge
+    dest: default
+    topic: "CameraGateway.0.Frame"
+  - name: tfs
+    src: default
+    dest: edge
+    topic: "ArUco.0.FrameTransformations"

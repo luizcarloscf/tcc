@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "is-controller"
+version = "0.1.0"
+description = ""
+authors = ["Luiz Carlos Cosmi Filho <luizcarloscosmifilho@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+kopf = "^1.36.1"
+dynaconf = "^3.2.0"
+requests = "^2.31.0"
+kubernetes = "^27.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
