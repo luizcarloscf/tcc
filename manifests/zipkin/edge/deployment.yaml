@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zipkin
+  namespace: edge
+spec:
+  selector:
+    matchLabels:
+      app: zipkin
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: zipkin
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+      containers:
+      - name: zipkin
+        image: openzipkin/zipkin
+        env:
+        - name: STORAGE_TYPE
+          value: 'cassandra3'
+        - name: CASSANDRA_ENSURE_SCHEMA
+          value: 'false'
+        - name: QUERY_ENABLED
+          value: 'false'
+        - name: CASSANDRA_CONTACT_POINTS
+          value: 'cassandra.default'
+        ports:
+        - containerPort: 9411
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: 512m

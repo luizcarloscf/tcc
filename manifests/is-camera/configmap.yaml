@@ -3,14 +3,14 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: is-camera
-  namespace: default
+  namespace: edge
   labels:
     app: is-camera
 data:
   options: |-
     {
-      "rabbitmq_uri" : "amqp://guest:guest@rabbitmq.default:5672",
-      "zipkin_uri": "http://zipkin.default:9411",
+      "rabbitmq_uri" : "amqp://guest:guest@rabbitmq.edge:5672",
+      "zipkin_uri": "http://zipkin.edge:9411",
       "camera": {
           "id": 0,
           "device": "/dev/video0",
@@ -22,14 +22,14 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: is-camera-initial-config
-  namespace: default
+  namespace: edge
   labels:
     app: is-camera-initial-config
 data:
   camera_0: |-
     {
       "sampling": {
-        "frequency": 1
+        "frequency": 10.0
       },
       "image": {
         "resolution": {

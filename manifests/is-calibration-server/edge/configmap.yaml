@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: is-calibration-server
+  namespace: edge
+data:
+  config: |-
+    {
+      "broker_uri": "amqp://rabbitmq.edge:5672",
+      "zipkin_uri": "http://zipkin.edge:9411",
+      "calibrations_path": "/opt/is-aruco-calib/etc/calibrations/ufes"
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: is-calibration-cloner
+  namespace: edge
+  labels:
+    app: is-calibration-cloner
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    set -o errexit
+    set -o pipefail
+    set -u
+    set -x
+    DEBIAN_FRONTEND=noninteractive
+    CLONE_DIR="${CLONE_DIR}"
+    GIT_URL="${GIT_URL}"
+    GIT_CHECKOUT="${GIT_CHECKOUT}"
+
+    install_git() {
+        echo "Installing git..."
+        apt-get update
+        apt-get install -y --no-install-recommends git ca-certificates
+        echo "Installing git... DONE!"
+    }
+    clone_and_checkout() {
+        echo "Clone and checkout repo..."
+        git clone $GIT_URL $CLONE_DIR
+        cd $CLONE_DIR
+        git checkout $GIT_CHECKOUT
+        echo "Clone and checkout repo... DONE!"
+    }
+    main() {
+        install_git
+        clone_and_checkout
+    }
+    main "$@"

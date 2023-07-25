@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+message RobotConfig {
+    repeated int32 cameras = 1;
+    repeated int32 arucos = 2;
+    double processing_time = 3;
+}
+
+
+// Models the ArUco service
+message RobotOptions {
+    // RabbitMQ broker uri
+    string rabbitmq_uri = 1;
+    // Zipkin uri
+    string zipkin_uri = 2;
+    // Robot configurations
+    RobotConfig config = 3;
+}

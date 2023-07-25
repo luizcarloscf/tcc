@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: is-robot
+  namespace: edge
+spec:
+  selector:
+    matchLabels:
+      app: is-robot
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: is-robot
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+      containers:
+      - name: is-robot
+        image: luizcarloscf/is-robot:0.3.0
+        command: ["is-robot", "/etc/is-robot/options.json"]
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "256m"
+            memory: "256Mi"
+          requests:
+            cpu: "128m"
+            memory: "128Mi"
+        volumeMounts:
+          - name: options
+            mountPath: /etc/is-robot/
+      volumes:
+      - name: options
+        configMap:
+          name: is-robot
+          items:
+          - key: options
+            path: options.json

@@ -188,16 +188,24 @@ class CameraGateway:
             self.logger.critical("Failed to set initial configuration.\n \
                                   Code={}, why={}".format(ok.code, ok.why))
         time.sleep(2)
-        publish_channel = Channel(self.broker_uri)
-        rpc_channel = Channel(self.broker_uri)
 
         zipkin_uri, zipkin_port = self.get_zipkin(uri=self.zipkin_uri)
+        zipkin_uri_comm = "{}@{}:{}".format(
+            service_name + ".commtime",
+            zipkin_uri,
+            zipkin_port,
+        )
+        publish_channel = Channel(self.broker_uri, zipkin_uri=zipkin_uri_comm)
+        rpc_channel = Channel(self.broker_uri)
+
+        
         exporter = ZipkinExporter(
             service_name=service_name,
             host_name=zipkin_uri,
             port=zipkin_port,
             transport=AsyncTransport,
         )
+
         server = ServiceProvider(channel=rpc_channel)
         logging = LogInterceptor()
         tracing = TracingInterceptor(exporter=exporter)
@@ -220,20 +228,15 @@ class CameraGateway:
         while True:
             image = self.driver.grab_image()
             tracer = Tracer(exporter=exporter)
-
-            span = tracer.start_span(name='frame')
-            message = Message()
-            message.pack(self.driver.to_image(image))
-            message.topic = "{}.{}.Frame".format(service_name, self.id)
-            message.inject_tracing(span)
-            tracer.end_span()
-
-            if len(image.data) > 0:
-                publish_channel.publish(message=message)
-                took_ms = round(self.span_duration_ms(span), 2)
-                self.logger.info("Publish image, took_ms={}".format(took_ms))
-            else:
-                self.logger.warn("No image captured.")
+            span = None
+            with tracer.span(name="frame") as _span:
+                message = Message()
+                message.pack(self.driver.to_image(image))
+                span = _span
+                message.inject_tracing(_span)
+            publish_channel.publish(message=message, topic="{}.{}.Frame".format(service_name, self.id))
+            took_ms = round(self.span_duration_ms(span), 2)
+            self.logger.info("Publish image, took_ms={}".format(took_ms))
             try:
                 message = rpc_channel.consume(timeout=0)
                 if server.should_serve(message):

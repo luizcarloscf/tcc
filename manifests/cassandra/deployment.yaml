@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cassandra
+  labels:
+    app: cassandra
+spec:
+  # serviceName: cassandra
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cassandra  
+  template:
+    metadata:
+      labels:
+        app: cassandra
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      terminationGracePeriodSeconds: 10
+      # initContainers:
+      # - name: volume-mount-hack
+        # image: busybox
+        # command: ["sh", "-c", "chmod -R 777 /cassandra/"]
+        # volumeMounts:
+        # - name: cassandra-data
+          # mountPath: /cassandra/data
+      containers:
+      - name: cassandra
+        image: ghcr.io/openzipkin/zipkin-cassandra:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7000
+        - containerPort: 7001
+        - containerPort: 7199
+        - containerPort: 9042
+        env:
+        - name: LOGGING_LEVEL
+          value: DEBUG
+        resources:
+          limits:
+            cpu: "500m"
+            memory: 8Gi
+          requests:
+            cpu: "200m"
+            memory: 3Gi
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: cassandra-data
+            mountPath: /cassandra/data
+      volumes:
+        - name: cassandra-data
+          hostPath:
+            path: /home/luiz/.cassandra/
+            type: Directory
