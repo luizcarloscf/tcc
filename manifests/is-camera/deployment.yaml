@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: is-camera
-  namespace: default
+  namespace: edge
 spec:
   selector:
     matchLabels:
@@ -18,7 +18,7 @@ spec:
         kubernetes.io/arch: arm64
       containers:
       - name: is-camera
-        image: luizcarloscf/is-camera:0.2.0
+        image: luizcarloscf/is-camera:0.3.0
         command: [ "is-camera-gateway", "/etc/is-camera/options/options.json"]
         imagePullPolicy: Always
         resources:

@@ -18,7 +18,7 @@ spec:
         kubernetes.io/arch: amd64
       containers:
       - name: is-aruco-detector
-        image: luizcarloscf/is-aruco-detector:0.2.0
+        image: luizcarloscf/is-aruco-detector:0.3.1
         command: ["is-aruco-detector", "/etc/is-aruco-detector/options.json"]
         imagePullPolicy: Always
         resources:

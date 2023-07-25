@@ -9,7 +9,7 @@ packages = [{include = "is_camera"}]
 [tool.poetry.dependencies]
 python = "^3.8"
 is-msgs = "1.1.10"
-is-wire = "1.2.0"
+is-wire = {git = "https://github.com/labviros/is-wire-py.git", rev = "add_communication_tracing"}
 vine = "1.3.0"
 numpy = "1.22.4"
 opencv-contrib-python = "4.7.0.68"

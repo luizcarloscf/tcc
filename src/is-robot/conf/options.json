@@ -1,0 +1,9 @@
+{
+	"rabbitmq_uri": "amqp://guest:guest@localhost:5672",
+	"zipkin_uri" : "http://localhost:9411",
+	"config": {
+        "cameras": [0],
+        "arucos": [0],
+        "processing_time": 0.01
+    }
+}

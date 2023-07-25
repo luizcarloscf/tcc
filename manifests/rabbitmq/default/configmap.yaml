@@ -6,11 +6,10 @@ metadata:
   namespace: default
 data:
   plugins: |-
-    [rabbitmq_management, rabbitmq_web_mqtt, rabbitmq_mqtt, rabbitmq_top, rabbitmq_event_exchange].
+    [rabbitmq_management, rabbitmq_top, rabbitmq_event_exchange, rabbitmq_shovel, rabbitmq_shovel_management].
   config: |-
     vm_memory_high_watermark.relative = 0.8
-    hipe_compile = true
-    mqtt.exchange = is
+    hipe_compile = false
     loopback_users.guest = false
     password_hashing_module = rabbit_password_hashing_sha256
     management.load_definitions = /etc/rabbitmq/definitions.json

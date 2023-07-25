@@ -1,0 +1,81 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq
+  namespace: edge
+data:
+  plugins: |-
+    [rabbitmq_management, rabbitmq_top, rabbitmq_event_exchange, rabbitmq_shovel, rabbitmq_shovel_management].
+  config: |-
+    vm_memory_high_watermark.relative = 0.8
+    hipe_compile = false
+    loopback_users.guest = false
+    password_hashing_module = rabbit_password_hashing_sha256
+    management.load_definitions = /etc/rabbitmq/definitions.json
+  definitions: |-
+    {
+      "users": [
+        {
+          "name": "guest",
+          "password_hash": "tR4+Id4/sXET7bYI10E9HyPFDb3mqZhVlv1AycxTPKgjOhaY",
+          "tags": "administrator"
+        }
+      ],
+      "permissions": [
+        {
+          "user": "guest",
+          "vhost": "/",
+          "configure": ".*",
+          "write": ".*",
+          "read": ".*"
+        }
+      ],
+      "vhosts": [
+        {
+          "name": "/"
+        }
+      ],
+      "exchanges": [
+        {
+          "name": "is",
+          "vhost": "/",
+          "type": "topic",
+          "durable": false,
+          "auto_delete": false,
+          "internal": false,
+          "arguments": {}
+        },
+        {
+          "name": "amq.rabbitmq.event",
+          "vhost": "/",
+          "type": "topic",
+          "durable": true,
+          "auto_delete": false,
+          "internal": true,
+          "arguments": {}
+        }
+      ],
+      "bindings": [
+        {
+          "source": "amq.rabbitmq.event",
+          "destination": "is",
+          "destination_type": "exchange",
+          "routing_key": "#",
+          "vhost": "/",
+          "arguments": {}
+        }
+      ],
+      "policies": [
+        {
+          "name": "default",
+          "pattern": ".*",
+          "apply-to": "queues",
+          "vhost": "/",
+          "definition": {
+            "max-length-bytes": 10485760,
+            "max-length": 64
+          }
+        }
+      ]
+    }

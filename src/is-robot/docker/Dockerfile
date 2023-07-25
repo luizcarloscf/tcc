@@ -13,15 +13,14 @@ RUN set -eux; \
         build-essential \
         libssl-dev \
         cargo \
-        git \
-        ca-certificates; \
+        git; \
     pip3 install --upgrade poetry; \
     poetry config virtualenvs.in-project true;
 
 WORKDIR /opt/
-COPY src/is-aruco-detector/ is-aruco-detector/
+COPY src/is-robot/ is-robot/
 
-WORKDIR /opt/is-aruco-detector/
+WORKDIR /opt/is-robot/
 RUN set -eux; \
     poetry install --only main; \
     poetry run pip install --upgrade protobuf==3.20.3; \
@@ -39,12 +38,12 @@ RUN set -eux; \
         libgl1-mesa-glx \
         libturbojpeg0; 
 
-WORKDIR /opt/is-aruco-detector
-COPY --from=build /opt/is-aruco-detector/.venv /opt/is-aruco-detector/.venv
-COPY --from=build /opt/is-aruco-detector/is_aruco_detector /opt/is-aruco-detector/is_aruco_detector
-COPY --from=build /opt/is-aruco-detector/conf/options.json /etc/is-aruco-detector/options.json
+WORKDIR /opt/is-robot
+COPY --from=build /opt/is-robot/.venv /opt/is-robot/.venv
+COPY --from=build /opt/is-robot/is_robot /opt/is-robot/is_robot
+COPY --from=build /opt/is-robot/conf/options.json /etc/is-robot/options.json
 
-ENV VIRTUAL_ENV=/opt/is-aruco-detector/.venv
+ENV VIRTUAL_ENV=/opt/is-robot/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-CMD [ "is-aruco-detector", "/etc/is-aruco-detector/options.json" ]
+CMD [ "is-robot", "/etc/is-robot/options.json" ]

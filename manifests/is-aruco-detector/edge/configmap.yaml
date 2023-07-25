@@ -1,0 +1,24 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: is-aruco-detector
+  namespace: edge
+  labels:
+    app: is-aruco-detector
+data:
+  options: |-
+    {
+      "service_name": "ArUcoDetector",
+      "rabbitmq_uri" : "amqp://guest:guest@rabbitmq.edge:5672",
+      "zipkin_uri" : "http://zipkin.edge:9411",
+        "config": {
+          "input_service_name": "CameraGateway",
+          "dictionary": "DICT_4X4_50",
+          "lengths": {
+            "0": 0.300,
+            "1": 0.180
+          },
+          "cameras": [0]
+        }
+    }

@@ -24,10 +24,10 @@ RUN set -eux; \
     poetry config virtualenvs.in-project true;
 
 WORKDIR /opt/
-COPY src/is-aruco-detector/ is-aruco-detector/
+COPY src/is-robot/ is-robot/
 
-WORKDIR /opt/is-aruco-detector/
+WORKDIR /opt/is-robot
 RUN set -eux; \
     poetry install; \
     poetry run pip install --upgrade protobuf==3.20.3; \
-    poetry run pip install -I "git+https://github.com/labviros/opencensus-python.git"        
+    poetry run pip install -I "git+https://github.com/labviros/opencensus-python.git"

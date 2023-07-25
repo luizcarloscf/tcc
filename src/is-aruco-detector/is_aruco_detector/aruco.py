@@ -19,14 +19,23 @@ from is_aruco_detector.conf.options_pb2 import ArUcoSettings
 
 
 class ArUcoDetector:
-    def __init__(self, settings: ArUcoSettings, channel: Channel, subscription: Subscription, exporter: ZipkinExporter):
+    def __init__(self,
+                 settings: ArUcoSettings,
+                 channel: Channel,
+                 subscription: Subscription,
+                 exporter: ZipkinExporter):
         self.logger = Logger("ArUco")
         self.channel = channel
         self.settings = settings
         self.exporter = exporter
         self.subscription = subscription
-        self.subscription.subscribe("CameraGateway.*.Frame")
-        self.re_topic = re.compile(r'CameraGateway.(\d+).Frame')
+        for camera in self.settings.cameras:
+            topic = "{}.{}.Frame".format(self.settings.input_service_name, camera)
+            self.subscription.subscribe(topic=topic)
+            self.logger.info("Subscribed to receive messages with topic '{}'".format(
+                topic
+            ))
+        self.re_topic = re.compile(r'{service_name}.(\d+).Frame'.format(service_name=self.settings.input_service_name))
         self.dictionary = cv2.aruco.getPredefinedDictionary(settings.dictionary)
         self.parameters = cv2.aruco.DetectorParameters()
         self.detector = cv2.aruco.ArucoDetector(self.dictionary, self.parameters)
@@ -146,40 +155,29 @@ class ArUcoDetector:
     def run(self,
             message: Message,
             calibrations: Dict[int, CameraCalibration]) -> Union[None, int]:
-        match = self.re_topic.match(message.topic)
-        if match is None:
-            return
-        else:
-            camera_id = int(match.group(1))
-            if camera_id not in calibrations:
-                return camera_id
         tracer = Tracer(
             exporter=self.exporter,
             span_context=message.extract_tracing(),
         )
-        detect_span, localize_span = None, None
-
-        with tracer.span(name="detect") as _detect_span:
+        span = None
+        with tracer.span(name="detect_and_localize") as _span:
+            match = self.re_topic.match(message.topic)
+            if match is None:
+                return
+            else:
+                camera_id = int(match.group(1))
+                if camera_id not in calibrations:
+                    return
             image = message.unpack(schema=Image)
             annotations = self.detect(image=image)
-            message_obs = Message(content=annotations)
-            message_obs.topic = "ArUco.{}.Detection".format(camera_id)
-            message_obs.inject_tracing(span=_detect_span)
-            self.channel.publish(message=message_obs)
-            detect_span = _detect_span
-
-        with tracer.span(name="localize") as _localize_span:
             transformations = self.localize(
                 annotations=annotations,
                 calibration=calibrations[camera_id],
             )
             message_ann = Message(content=transformations)
             message_ann.topic = "ArUco.{}.FrameTransformations".format(camera_id)
-            message_ann.inject_tracing(span=_localize_span)
-            self.channel.publish(message=message_ann)
-            localize_span = _localize_span
-
-        took_ms = round(self.span_duration_ms(detect_span), 2)
-        self.logger.info("Detect, took_ms={}".format(took_ms))
-        took_ms = round(self.span_duration_ms(localize_span), 2)
-        self.logger.info("Localize, took_ms={}".format(took_ms))
+            span = _span
+            message_ann.inject_tracing(span=_span)
+        self.channel.publish(message=message_ann)
+        took_ms = round(self.span_duration_ms(span), 2)
+        self.logger.info("Detect and localize, took_ms={}".format(took_ms))
