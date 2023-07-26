@@ -28,7 +28,7 @@ spec:
           # mountPath: /cassandra/data
       containers:
       - name: cassandra
-        image: ghcr.io/openzipkin/zipkin-cassandra:latest
+        image: ghcr.io/openzipkin/zipkin-cassandra:2.22.2
         imagePullPolicy: Always
         ports:
         - containerPort: 7000
@@ -53,5 +53,5 @@ spec:
       volumes:
         - name: cassandra-data
           hostPath:
-            path: /home/luiz/.cassandra/
+            path: /home/luizcarloscf/.cassandra/
             type: Directory
