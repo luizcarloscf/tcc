@@ -74,23 +74,47 @@ spec:
                 tracesTargetValue:
                   type: number
                 connections:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                      src:
-                        type: string
-                      dest:
-                        type: string
-                      topic:
-                        type: string
-                    required:
-                    - name
-                    - src
-                    - dest
-                    - topic
+                  type: object
+                  properties:
+                    test:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          src:
+                            type: string
+                          dest:
+                            type: string
+                          topic:
+                            type: string
+                        required:
+                        - name
+                        - src
+                        - dest
+                        - topic
+                    stable:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          src:
+                            type: string
+                          dest:
+                            type: string
+                          topic:
+                            type: string
+                        required:
+                        - name
+                        - src
+                        - dest
+                        - topic
+                  required:
+                  - test
+                  - stable
               required:
               - edge
               - cloud

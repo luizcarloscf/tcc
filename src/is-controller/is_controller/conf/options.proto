@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package is;
+
+message RabbitMQ {
+    string name = 1;
+    string uri = 2;
+    string user = 3;
+    string password = 4;
+    string management_url = 5;
+}
+
+message Zipkin {
+    string uri = 1;
+    uint64 loopback = 2;
+    uint32 drift = 3;
+    uint32 limit = 4;
+}
+
+message IsControllerOptions {
+    uint32 timer = 1;
+    Zipkin zipkin = 2;
+    RabbitMQ default = 3;
+    repeated RabbitMQ edges = 4;
+}

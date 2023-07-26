@@ -10,7 +10,7 @@ class RabbitMQ(TypedDict):
     uri: str
     user: str
     password: str
-    management_url: str
+    managementUrl: str
 
 
 class Shovel(TypedDict):
@@ -46,6 +46,7 @@ class RabbitMQClient:
                                dest: str):
         src_rabbitmq, dest_rabbitmq = self.get_broker(src), self.get_broker(
             dest)
+        print(src_rabbitmq)
         data = {
             "value": {
                 "ack-mode": "no-ack",
@@ -61,7 +62,7 @@ class RabbitMQClient:
         }
         response = put(
             url=urljoin(
-                self._default['management_url'],
+                self._default['managementUrl'],
                 f"/api/parameters/shovel/%2f/{name}",
             ),
             auth=(
@@ -76,7 +77,7 @@ class RabbitMQClient:
     def delete_exchange_shovel(self, name: str):
         response = delete(
             url=urljoin(
-                self._default['management_url'],
+                self._default['managementUrl'],
                 f"/api/parameters/shovel/%2f/{name}",
             ),
             auth=(
@@ -90,7 +91,7 @@ class RabbitMQClient:
     def list_exchange_shovel(self) -> List[Shovel]:
         response: List[Shovel] = get(
             url=urljoin(
-                self._default["management_url"],
+                self._default["managementUrl"],
                 "/api/shovels/",
             ),
             auth=(

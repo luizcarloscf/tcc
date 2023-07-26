@@ -16,15 +16,23 @@ spec:
   spans:
   - name: frame
     service: cameragateway
-  - name: localization
-    service: aruco.localization
-  tracesTargetValue: 12
+  - name: commtime
+    service: arucodetector.commtime
+  - name: detect_and_localize
+    service: arucodetector
+  tracesTargetValue: 65
   connections:
-  - name: images
-    src: edge
-    dest: default
-    topic: "CameraGateway.0.Frame"
-  - name: tfs
-    src: default
-    dest: edge
-    topic: "ArUco.0.FrameTransformations"
+    test:
+    - name: images
+      src: edge
+      dest: default
+      topic: "CameraGateway.0.Frame"
+    stable:
+    - name: images
+      src: edge
+      dest: default
+      topic: "CameraGateway.0.Frame"
+    - name: tfs
+      src: default
+      dest: edge
+      topic: "ArUco.0.FrameTransformations"

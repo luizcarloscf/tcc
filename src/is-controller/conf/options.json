@@ -1,0 +1,25 @@
+{
+    "timer": 10,
+    "zipkin": {
+        "uri": "http://10.20.4.254:30200",
+        "loopback": 300000,
+        "drift": 100000,
+        "limit": 1000
+    },
+    "default": {
+        "name": "default",
+        "uri": "amqp://rabbitmq.default",
+        "user": "guest",
+        "password": "guest",
+        "management_url": "http://10.20.4.254:30080"
+    },
+    "edges": [
+        {
+            "name": "edge",
+            "uri": "amqp://rabbitmq.edge",
+            "user": "guest",
+            "password": "guest",
+            "management_url": "http://10.20.4.254:30083"
+        }
+    ]
+}

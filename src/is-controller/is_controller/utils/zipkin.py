@@ -24,8 +24,9 @@ class Span(TypedDict):
     localEndpoint: LocalEndpoint
     tags: NotRequired[Dict[K, V]]
 
+
 Trace = List[Span]
-ZipkinResponse =  List[Trace]
+ZipkinResponse = List[Trace]
 
 
 class ZipkinRequest(TypedDict):
@@ -35,9 +36,11 @@ class ZipkinRequest(TypedDict):
     serviceName: NotRequired[str]
     spanName: NotRequired[str]
 
+
 class ZipkinClient:
 
-    def __init__(self, zipkin: str, loopback: int, drift: int, limit: int) -> None:
+    def __init__(self, zipkin: str, loopback: int, drift: int,
+                 limit: int) -> None:
         self._zipkin = zipkin
         self._loopback = loopback
         self._drift = drift
@@ -47,12 +50,14 @@ class ZipkinClient:
         response = get(
             url=f'{self._zipkin}/api/v2/traces',
             params=self.payload(spans=spans, services=services),
+            timeout=5,
         )
         response.raise_for_status()
         traces: ZipkinResponse = response.json()
         return self.filter(traces, spans=spans, services=services)
-    
-    def filter(self, response: ZipkinResponse, spans: List[str], services: List[str]) -> ZipkinResponse:
+
+    def filter(self, response: ZipkinResponse, spans: List[str],
+               services: List[str]) -> ZipkinResponse:
         intermediary = []
         for trace in response:
             if len(spans) > 0:
@@ -67,13 +72,11 @@ class ZipkinClient:
         traces = []
         for trace in intermediary:
             if len(services) > 0:
-                names = [span["localEndpoint"]["serviceName"] for span in trace]
+                names = [
+                    span["localEndpoint"]["serviceName"] for span in trace
+                ]
                 count = 0
-                for service_name in services:
-                    for name in names:
-                        if name.startswith(service_name):
-                            count += 1
-                if count == len(spans):
+                if set(names) == set(services):
                     traces.append(trace)
         return traces
 
