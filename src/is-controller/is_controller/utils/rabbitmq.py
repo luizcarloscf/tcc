@@ -46,7 +46,6 @@ class RabbitMQClient:
                                dest: str):
         src_rabbitmq, dest_rabbitmq = self.get_broker(src), self.get_broker(
             dest)
-        print(src_rabbitmq)
         data = {
             "value": {
                 "ack-mode": "no-ack",
@@ -75,18 +74,21 @@ class RabbitMQClient:
         response.raise_for_status()
 
     def delete_exchange_shovel(self, name: str):
-        response = delete(
-            url=urljoin(
-                self._default['managementUrl'],
-                f"/api/parameters/shovel/%2f/{name}",
-            ),
-            auth=(
-                self._default['user'],
-                self._default['password'],
-            ),
-            timeout=5,
-        )
-        response.raise_for_status()
+        shovels = self.list_exchange_shovel()
+        for shovel in shovels:
+            if shovel["name"] == name:
+                response = delete(
+                    url=urljoin(
+                        self._default['managementUrl'],
+                        f"/api/parameters/shovel/%2f/{name}",
+                    ),
+                    auth=(
+                        self._default['user'],
+                        self._default['password'],
+                    ),
+                    timeout=5,
+                )
+                response.raise_for_status()
 
     def list_exchange_shovel(self) -> List[Shovel]:
         response: List[Shovel] = get(
@@ -102,34 +104,3 @@ class RabbitMQClient:
         )
         response.raise_for_status()
         return response.json()
-
-
-if __name__ == "__main__":
-    client = RabbitMQClient(
-        default=RabbitMQ(
-            name="default",
-            uri="amqp://rabbitmq.default",
-            user="guest",
-            password="guest",
-            management_url="http://10.20.4.254:30080",
-        ),
-        edges=[
-            RabbitMQ(
-                name="edge",
-                uri="amqp://rabbitmq.edge",
-                user="guest",
-                password="guest",
-                management_url="http://10.20.4.253:30083",
-            ),
-        ],
-    )
-    print(
-        client.create_exchange_shovel(
-            name="images",
-            topic="CameraGateway.0.Frame",
-            src="default",
-            dest="edge",
-        ))
-    print(client.list_exchange_shovel())
-    client.delete_exchange_shovel(name='images')
-    print(client.list_exchange_shovel())

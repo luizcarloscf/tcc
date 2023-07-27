@@ -17,10 +17,10 @@ spec:
   - name: frame
     service: cameragateway
   - name: commtime
-    service: arucodetector.commtime
+    service: arucodetectorcloud.commtime
   - name: detect_and_localize
-    service: arucodetector
-  tracesTargetValue: 65
+    service: arucodetectorcloud
+  tracesTargetValue: 85000
   connections:
     test:
     - name: images
@@ -28,10 +28,6 @@ spec:
       dest: default
       topic: "CameraGateway.0.Frame"
     stable:
-    - name: images
-      src: edge
-      dest: default
-      topic: "CameraGateway.0.Frame"
     - name: tfs
       src: default
       dest: edge

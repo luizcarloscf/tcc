@@ -9,7 +9,7 @@ metadata:
 data:
   options: |-
     {
-      "service_name": "ArUcoDetector",
+      "service_name": "ArUcoDetectorCloud",
       "rabbitmq_uri" : "amqp://guest:guest@rabbitmq.default:5672",
       "zipkin_uri" : "http://zipkin.default:9411",
         "config": {

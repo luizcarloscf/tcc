@@ -1,4 +1,4 @@
-from typing import List, TypeVar, Dict
+from typing import List, TypeVar, Dict, Tuple
 from typing_extensions import TypedDict, NotRequired
 
 from requests import get
@@ -50,35 +50,28 @@ class ZipkinClient:
         response = get(
             url=f'{self._zipkin}/api/v2/traces',
             params=self.payload(spans=spans, services=services),
-            timeout=5,
+            timeout=7,
         )
         response.raise_for_status()
         traces: ZipkinResponse = response.json()
-        return self.filter(traces, spans=spans, services=services)
+        return traces
 
-    def filter(self, response: ZipkinResponse, spans: List[str],
-               services: List[str]) -> ZipkinResponse:
-        intermediary = []
-        for trace in response:
-            if len(spans) > 0:
-                names = [span["name"] for span in trace]
-                count = 0
-                for span_name in spans:
-                    for name in names:
-                        if name.startswith(span_name):
-                            count += 1
-                if count == len(spans):
-                    intermediary.append(trace)
+    def filter_by_services(
+        self,
+        response: ZipkinResponse,
+        services: List[str],
+    ) -> Tuple[int, ZipkinResponse]:
         traces = []
-        for trace in intermediary:
+        count = 0
+        for trace in response:
             if len(services) > 0:
                 names = [
                     span["localEndpoint"]["serviceName"] for span in trace
                 ]
-                count = 0
-                if set(names) == set(services):
+                if set(services).issubset(set(names)):
                     traces.append(trace)
-        return traces
+                    count += 1
+        return count, traces
 
     @property
     def timestamp(self) -> int:

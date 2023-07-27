@@ -2,8 +2,8 @@
     "timer": 10,
     "zipkin": {
         "uri": "http://10.20.4.254:30200",
-        "loopback": 300000,
-        "drift": 100000,
+        "loopback": 60000,
+        "drift": 120000,
         "limit": 1000
     },
     "default": {
