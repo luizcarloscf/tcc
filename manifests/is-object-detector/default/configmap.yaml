@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: is-object-detector
+  namespace: default
+  labels:
+    app: is-object-detector
+data:
+  options: |-
+    {
+      "service_name": "ObjectDetector",
+      "rabbitmq_uri" : "amqp://guest:guest@rabbitmq.default:5672",
+      "zipkin_uri" : "http://zipkin.default:9411",
+      "config": {
+        "input_service_name": "CameraGateway",
+        "raspberry": false,
+        "model_path": "/etc/models/yolov8n.onnx",
+        "cameras": [
+            0
+        ]
+      }
+    }

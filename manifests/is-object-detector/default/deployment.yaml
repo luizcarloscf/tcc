@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: is-object-detector
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: is-object-detector
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: is-object-detector
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+      - name: is-object-detector
+        image: luizcarloscf/is-object-detector:0.0.1
+        command: ["is-object-detector", "/etc/is-object-detector/options.json"]
+        imagePullPolicy: Always
+        # resources:
+        #   limits:
+        #     cpu: "1500m"
+        #     memory: "1024Mi"
+        #   requests:
+        #     cpu: "1000m"
+        #     memory: "512Mi"
+        volumeMounts:
+          - name: options
+            mountPath: /etc/is-object-detector/
+      volumes:
+      - name: options
+        configMap:
+          name: is-object-detector
+          items:
+          - key: options
+            path: options.json

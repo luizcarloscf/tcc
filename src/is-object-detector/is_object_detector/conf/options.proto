@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+// Models the ArUco detection and localization behavior
+message ObjectSettings {
+    // RabbitMQ input service name
+    string input_service_name = 1;
+    // Raspberry
+    bool raspberry = 2;
+    // model path
+    string model_path = 3;
+    // cameras
+    repeated int64 cameras = 4;
+
+}
+  
+// Models the ArUco service
+message ObjectDetectorOptions {
+    // service name
+    string service_name = 1;
+    // RabbitMQ broker uri
+    string rabbitmq_uri = 2;
+    // Zipkin uri
+    string zipkin_uri = 3;
+    // ArUco configurations
+    ObjectSettings config = 4;
+}
